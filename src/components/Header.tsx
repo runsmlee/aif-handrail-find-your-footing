@@ -1,14 +1,18 @@
 import { useState } from 'react';
 
-export function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+interface HeaderProps {
+  activeSection?: string;
+}
 
-  const navItems = [
-    { label: 'Check In', href: '#mood' },
-    { label: 'Breathe', href: '#breathe' },
-    { label: 'Ground Yourself', href: '#grounding' },
-    { label: 'Support', href: '#crisis' },
-  ];
+const NAV_ITEMS = [
+  { label: 'Check In', href: '#mood', id: 'mood' },
+  { label: 'Breathe', href: '#breathe', id: 'breathe' },
+  { label: 'Ground Yourself', href: '#grounding', id: 'grounding' },
+  { label: 'Support', href: '#crisis', id: 'crisis' },
+];
+
+export function Header({ activeSection = '' }: HeaderProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-200" role="banner">
@@ -56,11 +60,16 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-            {navItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  activeSection === item.id
+                    ? 'text-primary-600 bg-primary-50'
+                    : 'text-slate-600 hover:text-primary-600 hover:bg-primary-50'
+                }`}
+                aria-current={activeSection === item.id ? 'true' : undefined}
               >
                 {item.label}
               </a>
@@ -108,12 +117,17 @@ export function Header() {
             aria-label="Mobile navigation"
           >
             <div className="flex flex-col gap-1 pt-3">
-              {navItems.map((item) => (
+              {NAV_ITEMS.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2.5 text-sm font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                  className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                    activeSection === item.id
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-slate-600 hover:text-primary-600 hover:bg-primary-50'
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
+                  aria-current={activeSection === item.id ? 'true' : undefined}
                 >
                   {item.label}
                 </a>

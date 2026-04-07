@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 type Phase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'done';
+type Duration = 'quick' | 'standard' | 'extended';
+
+interface DurationConfig {
+  label: string;
+  description: string;
+  cycles: number;
+}
 
 interface PhaseConfig {
   label: string;
@@ -9,31 +16,32 @@ interface PhaseConfig {
   color: string;
 }
 
+const DURATIONS: Record<Duration, DurationConfig> = {
+  quick: { label: '1 min', description: '2 cycles', cycles: 2 },
+  standard: { label: '2 min', description: '3 cycles', cycles: 3 },
+  extended: { label: '4 min', description: '6 cycles', cycles: 6 },
+};
+
 const PHASES: Record<Exclude<Phase, 'idle' | 'done'>, PhaseConfig> = {
   inhale: { label: 'Breathe In', instruction: 'Slowly breathe in through your nose', duration: 4, color: 'bg-primary-400' },
   hold: { label: 'Hold', instruction: 'Hold your breath gently', duration: 4, color: 'bg-primary-500' },
   exhale: { label: 'Breathe Out', instruction: 'Slowly release through your mouth', duration: 4, color: 'bg-primary-300' },
 };
 
-const TOTAL_CYCLES = 3;
-
 export function BreathingExercise() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
+  const [selectedDuration, setSelectedDuration] = useState<Duration>('standard');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const totalCycles = DURATIONS[selectedDuration].cycles;
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, []);
-
-  const startExercise = useCallback(() => {
-    setPhase('inhale');
-    setCycleCount(1);
-    setSecondsLeft(PHASES.inhale.duration);
   }, []);
 
   const stopExercise = useCallback(() => {
@@ -43,12 +51,18 @@ export function BreathingExercise() {
     setSecondsLeft(0);
   }, [clearTimer]);
 
+  const startExercise = useCallback(() => {
+    setPhase('inhale');
+    setCycleCount(1);
+    setSecondsLeft(PHASES.inhale.duration);
+  }, []);
+
   useEffect(() => {
     if (phase === 'idle' || phase === 'done') return;
 
     if (secondsLeft <= 0) {
       if (phase === 'exhale') {
-        if (cycleCount >= TOTAL_CYCLES) {
+        if (cycleCount >= totalCycles) {
           setPhase('done');
           return;
         }
@@ -70,7 +84,7 @@ export function BreathingExercise() {
     }, 1000);
 
     return clearTimer;
-  }, [phase, secondsLeft, cycleCount, clearTimer]);
+  }, [phase, secondsLeft, cycleCount, totalCycles, clearTimer]);
 
   const currentPhaseConfig = phase !== 'idle' && phase !== 'done' ? PHASES[phase] : null;
 
@@ -82,6 +96,9 @@ export function BreathingExercise() {
     if (phase === 'exhale') return 1.3 - progress * 0.3;
     return 1;
   })();
+
+  const isIdle = phase === 'idle';
+  const isDone = phase === 'done';
 
   return (
     <section id="breathe" className="py-16 sm:py-24 bg-slate-50" aria-labelledby="breathe-heading">
@@ -99,31 +116,55 @@ export function BreathingExercise() {
         </div>
 
         <div className="max-w-sm mx-auto">
+          {/* Duration selector - only visible when idle */}
+          {isIdle && (
+            <div className="flex items-center justify-center gap-2 mb-8" role="radiogroup" aria-label="Select exercise duration">
+              {(Object.entries(DURATIONS) as [Duration, DurationConfig][]).map(([key, config]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="radio"
+                  aria-checked={selectedDuration === key}
+                  aria-label={`${config.label}: ${config.description}`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors min-h-[44px] ${
+                    selectedDuration === key
+                      ? 'bg-primary-500 text-white shadow-sm'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                  }`}
+                  onClick={() => setSelectedDuration(key)}
+                >
+                  <span className="block">{config.label}</span>
+                  <span className="block text-xs opacity-70">{config.description}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Breathing circle */}
           <div className="relative flex items-center justify-center h-56 sm:h-64 mb-8" aria-live="polite">
             <div
               className={`w-40 h-40 sm:w-48 sm:h-48 rounded-full flex items-center justify-center transition-all duration-1000 ease-in-out ${
-                phase === 'idle' || phase === 'done'
+                isIdle || isDone
                   ? 'bg-slate-200'
                   : currentPhaseConfig?.color ?? 'bg-slate-200'
               }`}
               style={{
                 transform: `scale(${circleScale})`,
-                opacity: phase === 'idle' ? 0.5 : 0.85,
+                opacity: isIdle ? 0.5 : 0.85,
               }}
               aria-hidden="true"
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              {phase === 'idle' && (
+              {isIdle && (
                 <>
                   <p className="text-lg font-semibold text-slate-700">Ready?</p>
                   <p className="text-sm text-slate-400 mt-1">
-                    {TOTAL_CYCLES} cycles of box breathing
+                    {totalCycles} cycles of box breathing
                   </p>
                 </>
               )}
-              {phase === 'done' && (
+              {isDone && (
                 <>
                   <p className="text-lg font-semibold text-sage-700">Well done</p>
                   <p className="text-sm text-slate-500 mt-1">
@@ -148,9 +189,9 @@ export function BreathingExercise() {
           </div>
 
           {/* Progress dots */}
-          {phase !== 'idle' && phase !== 'done' && (
-            <div className="flex items-center justify-center gap-2 mb-8" aria-label={`Cycle ${cycleCount} of ${TOTAL_CYCLES}`}>
-              {Array.from({ length: TOTAL_CYCLES }, (_, i) => (
+          {!isIdle && !isDone && (
+            <div className="flex items-center justify-center gap-2 mb-8" aria-label={`Cycle ${cycleCount} of ${totalCycles}`}>
+              {Array.from({ length: totalCycles }, (_, i) => (
                 <div
                   key={i}
                   className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${
@@ -164,14 +205,14 @@ export function BreathingExercise() {
 
           {/* Controls */}
           <div className="flex justify-center">
-            {phase === 'idle' || phase === 'done' ? (
+            {isIdle || isDone ? (
               <button
                 type="button"
                 className="px-8 py-3 text-base font-medium text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-colors shadow-sm shadow-primary-500/25 min-h-[44px]"
                 onClick={startExercise}
-                aria-label={phase === 'done' ? 'Start another breathing session' : 'Start breathing exercise'}
+                aria-label={isDone ? 'Start another breathing session' : 'Start breathing exercise'}
               >
-                {phase === 'done' ? 'Start Again' : 'Begin'}
+                {isDone ? 'Start Again' : 'Begin'}
               </button>
             ) : (
               <button
