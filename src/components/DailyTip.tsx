@@ -22,8 +22,16 @@ const TIPS: Tip[] = [
   { text: 'If you\u2019re overwhelmed, focus on just the next right step.', category: 'Grounding' },
 ];
 
+function getDailyTipIndex(): number {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now.getTime() - start.getTime();
+  const dayOfYear = Math.floor(diff / 86400000);
+  return dayOfYear % TIPS.length;
+}
+
 export function DailyTip() {
-  const [tipIndex, setTipIndex] = useState(0);
+  const [tipIndex, setTipIndex] = useState(getDailyTipIndex);
 
   const tip = useMemo(() => TIPS[tipIndex], [tipIndex]);
 

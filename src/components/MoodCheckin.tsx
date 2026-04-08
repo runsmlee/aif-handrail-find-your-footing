@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { MoodHistory } from './MoodHistory';
 import { useMoodHistory } from '../hooks/useMoodHistory';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 interface MoodOption {
   value: string;
@@ -26,6 +27,7 @@ export function MoodCheckin({ onMoodSelect }: MoodCheckinProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const { history, addEntry, clearHistory } = useMoodHistory();
+  const sectionRef = useScrollAnimation();
 
   const handleSelect = useCallback((mood: MoodOption) => {
     setSelectedMood(mood.value);
@@ -35,7 +37,7 @@ export function MoodCheckin({ onMoodSelect }: MoodCheckinProps) {
   }, [onMoodSelect, addEntry]);
 
   return (
-    <section id="mood" className="py-16 sm:py-24 bg-white dark:bg-slate-800" aria-labelledby="mood-heading">
+    <section id="mood" className="py-16 sm:py-24 bg-white dark:bg-slate-800 animate-section-hidden" aria-labelledby="mood-heading" ref={sectionRef}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2

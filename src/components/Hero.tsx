@@ -11,8 +11,43 @@ function getTimeGreeting(): string {
   return 'Good evening';
 }
 
+interface MotivationalQuote {
+  text: string;
+  author: string;
+}
+
+const QUOTES: MotivationalQuote[] = [
+  { text: 'You don\'t have to control your thoughts. You just have to stop letting them control you.', author: 'Dan Millman' },
+  { text: 'Almost everything will work again if you unplug it for a few minutes, including you.', author: 'Anne Lamott' },
+  { text: 'The greatest weapon against stress is our ability to choose one thought over another.', author: 'William James' },
+  { text: 'Breathe. Let go. And remind yourself that this very moment is the only one you know you have for sure.', author: 'Oprah Winfrey' },
+  { text: 'You are not your feelings. You are the one who notices them.', author: 'Eckhart Tolle' },
+  { text: 'Nothing can dim the light that shines from within.', author: 'Maya Angelou' },
+  { text: 'The only way out is through.', author: 'Robert Frost' },
+];
+
+function getDailyQuote(): MotivationalQuote {
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return QUOTES[dayOfYear % QUOTES.length];
+}
+
+function getStreakMilestone(streak: number): { label: string; next: number } | null {
+  const milestones = [3, 7, 14, 30, 60, 90];
+  if (streak === 0) return { label: 'Start your streak', next: 3 };
+  for (const milestone of milestones) {
+    if (streak < milestone) {
+      return { label: `${milestone}-day streak`, next: milestone };
+    }
+  }
+  return null;
+}
+
 export function Hero({ streak = 0 }: HeroProps) {
   const greeting = useMemo(() => getTimeGreeting(), []);
+  const quote = useMemo(() => getDailyQuote(), []);
+  const milestone = useMemo(() => getStreakMilestone(streak), [streak]);
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-primary-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800" aria-labelledby="hero-heading">
@@ -50,13 +85,35 @@ export function Hero({ streak = 0 }: HeroProps) {
             Your daily wellness companion
           </div>
 
-          {/* Streak indicator */}
-          {streak > 0 && (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 ml-2 text-xs font-medium text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/30 rounded-full animate-fade-in">
-              <span aria-hidden="true">
-                {streak >= 7 ? '\u{1F525}' : '\u{2B50}'}
-              </span>
-              {streak} day{streak !== 1 ? 's' : ''} streak
+          {/* Streak indicator with milestone progress */}
+          {streak > 0 && milestone && (
+            <div className="inline-flex flex-col items-start gap-1.5 mb-4 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/30 rounded-full">
+                <span aria-hidden="true">
+                  {streak >= 7 ? '\u{1F525}' : '\u{2B50}'}
+                </span>
+                {streak} day{streak !== 1 ? 's' : ''} streak
+              </div>
+              {milestone.next > streak && (
+                <div className="ml-2 flex items-center gap-2">
+                  <div className="w-20 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-sage-500 dark:bg-sage-400 rounded-full transition-all duration-500"
+                      style={{ width: `${((streak % milestone.next) / milestone.next) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                    {milestone.next - streak} to {milestone.label}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {streak === 0 && milestone && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full animate-fade-in">
+              <span aria-hidden="true">{'\u{1F331}'}</span>
+              {milestone.label}
             </div>
           )}
 
@@ -91,8 +148,18 @@ export function Hero({ streak = 0 }: HeroProps) {
             </a>
           </div>
 
+          {/* Daily quote */}
+          <div className="mt-10 sm:mt-14 p-4 bg-white/60 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 rounded-xl max-w-lg">
+            <p className="text-sm text-slate-600 dark:text-slate-400 italic leading-relaxed">
+              &ldquo;{quote.text}&rdquo;
+            </p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+              &mdash; {quote.author}
+            </p>
+          </div>
+
           {/* Trust indicators */}
-          <div className="mt-12 sm:mt-16 flex flex-wrap items-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+          <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-6 text-sm text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>

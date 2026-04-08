@@ -1,18 +1,43 @@
-import { useMemo } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { DailyTip } from './components/DailyTip';
 import { QuickActions } from './components/QuickActions';
 import { MoodCheckin } from './components/MoodCheckin';
-import { BreathingExercise } from './components/BreathingExercise';
-import { GroundingExercise } from './components/GroundingExercise';
-import { GratitudeJournal } from './components/GratitudeJournal';
-import { CrisisResources } from './components/CrisisResources';
-import { Footer } from './components/Footer';
+import { WellnessChecklist } from './components/WellnessChecklist';
+import { ScrollToTop } from './components/ScrollToTop';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useScrollSpy } from './hooks/useScrollSpy';
 import { useTheme } from './hooks/useTheme';
 import { useMoodHistory } from './hooks/useMoodHistory';
+
+// Lazy load heavy sections to reduce initial bundle
+const BreathingExercise = lazy(() =>
+  import('./components/BreathingExercise').then(m => ({ default: m.BreathingExercise }))
+);
+const GroundingExercise = lazy(() =>
+  import('./components/GroundingExercise').then(m => ({ default: m.GroundingExercise }))
+);
+const GratitudeJournal = lazy(() =>
+  import('./components/GratitudeJournal').then(m => ({ default: m.GratitudeJournal }))
+);
+const CrisisResources = lazy(() =>
+  import('./components/CrisisResources').then(m => ({ default: m.CrisisResources }))
+);
+const Footer = lazy(() =>
+  import('./components/Footer').then(m => ({ default: m.Footer }))
+);
+
+function SectionLoader(): React.ReactElement {
+  return (
+    <div className="flex items-center justify-center py-24" aria-hidden="true">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-2 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+        <span className="text-sm text-slate-400">Loading...</span>
+      </div>
+    </div>
+  );
+}
 
 const SECTION_IDS = ['mood', 'breathe', 'grounding', 'gratitude', 'crisis'];
 
@@ -50,21 +75,35 @@ export function App() {
           <MoodCheckin />
         </ErrorBoundary>
         <ErrorBoundary>
-          <BreathingExercise />
+          <WellnessChecklist />
         </ErrorBoundary>
         <ErrorBoundary>
-          <GroundingExercise />
+          <Suspense fallback={<SectionLoader />}>
+            <BreathingExercise />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
-          <GratitudeJournal />
+          <Suspense fallback={<SectionLoader />}>
+            <GroundingExercise />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
-          <CrisisResources />
+          <Suspense fallback={<SectionLoader />}>
+            <GratitudeJournal />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Suspense fallback={<SectionLoader />}>
+            <CrisisResources />
+          </Suspense>
         </ErrorBoundary>
       </main>
       <ErrorBoundary>
-        <Footer />
+        <Suspense fallback={<SectionLoader />}>
+          <Footer />
+        </Suspense>
       </ErrorBoundary>
+      <ScrollToTop />
     </div>
   );
 }

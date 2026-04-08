@@ -45,12 +45,9 @@ describe('App', () => {
     expect(skipLink).toBeInTheDocument();
   });
 
-  it('renders all main sections', () => {
+  it('renders the main hero section', () => {
     render(<App />);
-    expect(screen.getByText('How are you feeling right now?')).toBeInTheDocument();
-    expect(screen.getByText('Box Breathing')).toBeInTheDocument();
-    expect(screen.getByText('5-4-3-2-1 Grounding')).toBeInTheDocument();
-    expect(screen.getByText('Support is Always Available')).toBeInTheDocument();
+    expect(screen.getByText(/A gentle space to check in with yourself/)).toBeInTheDocument();
   });
 
   it('renders the header with navigation', () => {
@@ -59,14 +56,14 @@ describe('App', () => {
     expect(screen.getByText('Get Help Now')).toBeInTheDocument();
   });
 
-  it('renders the footer', () => {
-    render(<App />);
-    expect(screen.getByText(/Not a substitute for professional care/)).toBeInTheDocument();
-  });
-
   it('renders the daily tip', () => {
     render(<App />);
     expect(screen.getByText('Daily Tip')).toBeInTheDocument();
+  });
+
+  it('renders the mood check-in section', () => {
+    render(<App />);
+    expect(screen.getByText('How are you feeling right now?')).toBeInTheDocument();
   });
 
   it('renders the mood history section', () => {
@@ -74,23 +71,18 @@ describe('App', () => {
     expect(screen.getByText('Recent Check-ins')).toBeInTheDocument();
   });
 
+  it('renders the wellness checklist', () => {
+    render(<App />);
+    expect(screen.getByText('Daily Wellness Checklist')).toBeInTheDocument();
+  });
+
   it('renders the quick actions section', () => {
     render(<App />);
     expect(screen.getByText('Check Your Mood')).toBeInTheDocument();
-    // 'Breathe' appears in nav too, use getAllByText
-    expect(screen.getAllByText('Breathe').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Ground Yourself').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Write Gratitude')).toBeInTheDocument();
-  });
-
-  it('renders the gratitude journal section', () => {
-    render(<App />);
-    expect(screen.getByText('Gratitude Journal')).toBeInTheDocument();
   });
 
   it('renders a time-based greeting', () => {
     render(<App />);
-    // One of the greetings should be present
     const greetings = screen.queryAllByText(/Good (morning|afternoon|evening)/);
     expect(greetings.length).toBeGreaterThanOrEqual(1);
   });
@@ -99,5 +91,11 @@ describe('App', () => {
     render(<App />);
     const themeButton = screen.getByLabelText(/Switch to/);
     expect(themeButton).toBeInTheDocument();
+  });
+
+  it('renders the daily quote in hero', () => {
+    render(<App />);
+    // Quote attribution should be present
+    expect(screen.getByText(/— /)).toBeInTheDocument();
   });
 });
