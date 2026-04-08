@@ -33,11 +33,11 @@ export function DailyTip() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <div className="bg-gradient-to-r from-primary-50 to-warm-50 border border-primary-100 rounded-2xl p-5 sm:p-6">
+      <div className="bg-gradient-to-r from-primary-50 to-warm-50 dark:from-primary-900/20 dark:to-warm-900/20 border border-primary-100 dark:border-primary-800 rounded-2xl p-5 sm:p-6">
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+          <div className="flex-shrink-0 w-10 h-10 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center shadow-sm">
             <svg
-              className="w-5 h-5 text-primary-500"
+              className="w-5 h-5 text-primary-500 dark:text-primary-400"
               viewBox="0 0 20 20"
               fill="currentColor"
               aria-hidden="true"
@@ -51,18 +51,18 @@ export function DailyTip() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-primary-600 uppercase tracking-wide">
+              <span className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">
                 Daily Tip
               </span>
-              <span className="text-xs text-primary-400">·</span>
-              <span className="text-xs text-primary-500">{tip.category}</span>
+              <span className="text-xs text-primary-400 dark:text-primary-600">·</span>
+              <span className="text-xs text-primary-500 dark:text-primary-400">{tip.category}</span>
             </div>
-            <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
               {tip.text}
             </p>
             <button
               type="button"
-              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
               onClick={handleNewTip}
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">

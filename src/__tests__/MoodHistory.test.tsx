@@ -19,12 +19,14 @@ describe('MoodHistory', () => {
     expect(screen.getByText('Okay')).toBeInTheDocument();
   });
 
-  it('shows relative timestamps', () => {
+  it('shows relative timestamps in entry list', () => {
     const history: MoodEntry[] = [
       { value: 'great', label: 'Great', emoji: '\u{1F60A}', timestamp: Date.now() - 60000 },
     ];
     render(<MoodHistory history={history} onClear={() => {}} />);
-    expect(screen.getByText('1m ago')).toBeInTheDocument();
+    // Now appears in visualization labels and entry list
+    const timestamps = screen.getAllByText('1m ago');
+    expect(timestamps.length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows trend label for multiple entries', () => {
@@ -63,5 +65,13 @@ describe('MoodHistory', () => {
     render(<MoodHistory history={history} onClear={() => {}} />);
     const items = screen.getAllByRole('listitem');
     expect(items).toHaveLength(7);
+  });
+
+  it('shows mood visualization when history exists', () => {
+    const history: MoodEntry[] = [
+      { value: 'great', label: 'Great', emoji: '\u{1F60A}', timestamp: Date.now() - 60000 },
+    ];
+    render(<MoodHistory history={history} onClear={() => {}} />);
+    expect(screen.getByRole('img', { name: /Mood visualization/ })).toBeInTheDocument();
   });
 });

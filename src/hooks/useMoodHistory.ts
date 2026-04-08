@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 
 export interface MoodEntry {
   value: string;
@@ -31,12 +31,49 @@ function saveHistory(entries: MoodEntry[]): void {
   }
 }
 
+function computeStreak(history: MoodEntry[]): number {
+  if (history.length === 0) return 0;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayMs = today.getTime();
+
+  // Get unique days from history, sorted most recent first
+  const uniqueDays: number[] = [];
+  for (const entry of history) {
+    const entryDate = new Date(entry.timestamp);
+    entryDate.setHours(0, 0, 0, 0);
+    const entryMs = entryDate.getTime();
+    if (!uniqueDays.includes(entryMs)) {
+      uniqueDays.push(entryMs);
+    }
+  }
+  uniqueDays.sort((a, b) => b - a);
+
+  // Check if the most recent entry is today or yesterday
+  if (uniqueDays.length === 0) return 0;
+  const dayMs = 86400000;
+  if (uniqueDays[0] < todayMs - dayMs) return 0;
+
+  let streak = 1;
+  for (let i = 1; i < uniqueDays.length; i++) {
+    if (uniqueDays[i - 1] - uniqueDays[i] === dayMs) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
 export function useMoodHistory() {
   const [history, setHistory] = useState<MoodEntry[]>([]);
 
   useEffect(() => {
     setHistory(loadHistory());
   }, []);
+
+  const streak = useMemo(() => computeStreak(history), [history]);
 
   const addEntry = useCallback((entry: Omit<MoodEntry, 'timestamp'>): void => {
     const newEntry: MoodEntry = {
@@ -59,5 +96,5 @@ export function useMoodHistory() {
     }
   }, []);
 
-  return { history, addEntry, clearHistory };
+  return { history, addEntry, clearHistory, streak };
 }

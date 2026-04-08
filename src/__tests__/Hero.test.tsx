@@ -32,4 +32,19 @@ describe('Hero', () => {
     render(<Hero />);
     expect(screen.getByText('Your daily wellness companion')).toBeInTheDocument();
   });
+
+  it('does not render streak when streak is 0', () => {
+    render(<Hero streak={0} />);
+    expect(screen.queryByText(/day streak/)).not.toBeInTheDocument();
+  });
+
+  it('renders streak indicator when streak > 0', () => {
+    render(<Hero streak={3} />);
+    expect(screen.getByText('3 days streak')).toBeInTheDocument();
+  });
+
+  it('renders singular day for streak of 1', () => {
+    render(<Hero streak={1} />);
+    expect(screen.getByText('1 day streak')).toBeInTheDocument();
+  });
 });

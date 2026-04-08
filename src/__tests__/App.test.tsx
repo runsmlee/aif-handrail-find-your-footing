@@ -73,4 +73,31 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByText('Recent Check-ins')).toBeInTheDocument();
   });
+
+  it('renders the quick actions section', () => {
+    render(<App />);
+    expect(screen.getByText('Check Your Mood')).toBeInTheDocument();
+    // 'Breathe' appears in nav too, use getAllByText
+    expect(screen.getAllByText('Breathe').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Ground Yourself').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Write Gratitude')).toBeInTheDocument();
+  });
+
+  it('renders the gratitude journal section', () => {
+    render(<App />);
+    expect(screen.getByText('Gratitude Journal')).toBeInTheDocument();
+  });
+
+  it('renders a time-based greeting', () => {
+    render(<App />);
+    // One of the greetings should be present
+    const greetings = screen.queryAllByText(/Good (morning|afternoon|evening)/);
+    expect(greetings.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders dark mode toggle', () => {
+    render(<App />);
+    const themeButton = screen.getByLabelText(/Switch to/);
+    expect(themeButton).toBeInTheDocument();
+  });
 });
