@@ -62,7 +62,11 @@ function getTodaysPrompt(): string {
   return PROMPTS[dayOfYear % PROMPTS.length];
 }
 
-export function GratitudeJournal() {
+interface GratitudeJournalProps {
+  onEntrySaved?: () => void;
+}
+
+export function GratitudeJournal({ onEntrySaved }: GratitudeJournalProps) {
   const [entries, setEntries] = useState<GratitudeEntry[]>([]);
   const [currentText, setCurrentText] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -90,8 +94,9 @@ export function GratitudeJournal() {
 
     setCurrentText('');
     setShowSuccess(true);
+    onEntrySaved?.();
     setTimeout(() => setShowSuccess(false), 3000);
-  }, [currentText]);
+  }, [currentText, onEntrySaved]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {

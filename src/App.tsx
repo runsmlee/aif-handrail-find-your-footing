@@ -5,11 +5,13 @@ import { DailyTip } from './components/DailyTip';
 import { QuickActions } from './components/QuickActions';
 import { MoodCheckin } from './components/MoodCheckin';
 import { WellnessChecklist } from './components/WellnessChecklist';
+import { DailyProgress } from './components/DailyProgress';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useScrollSpy } from './hooks/useScrollSpy';
 import { useTheme } from './hooks/useTheme';
 import { useMoodHistory } from './hooks/useMoodHistory';
+import { useDailyProgress } from './hooks/useDailyProgress';
 
 // Lazy load heavy sections to reduce initial bundle
 const BreathingExercise = lazy(() =>
@@ -45,6 +47,7 @@ export function App() {
   const activeSection = useScrollSpy({ sectionIds: SECTION_IDS, offset: 120 });
   const { theme, toggleTheme } = useTheme();
   const { streak } = useMoodHistory();
+  const { activity, markMoodCheckedIn, updateChecklistProgress, markBreathingDone, markGratitudeDone } = useDailyProgress();
 
   const navSectionIds = useMemo(() => SECTION_IDS, []);
 
@@ -66,20 +69,29 @@ export function App() {
           <Hero streak={streak} />
         </ErrorBoundary>
         <ErrorBoundary>
+          <DailyProgress
+            moodCheckedIn={activity.moodCheckedIn}
+            checklistProgress={activity.checklistProgress}
+            checklistTotal={activity.checklistTotal}
+            breathingDone={activity.breathingDone}
+            gratitudeDone={activity.gratitudeDone}
+          />
+        </ErrorBoundary>
+        <ErrorBoundary>
           <DailyTip />
         </ErrorBoundary>
         <ErrorBoundary>
           <QuickActions />
         </ErrorBoundary>
         <ErrorBoundary>
-          <MoodCheckin />
+          <MoodCheckin onMoodCheckedIn={markMoodCheckedIn} />
         </ErrorBoundary>
         <ErrorBoundary>
-          <WellnessChecklist />
+          <WellnessChecklist onProgressChange={updateChecklistProgress} />
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
-            <BreathingExercise />
+            <BreathingExercise onComplete={markBreathingDone} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
@@ -89,7 +101,7 @@ export function App() {
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
-            <GratitudeJournal />
+            <GratitudeJournal onEntrySaved={markGratitudeDone} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>

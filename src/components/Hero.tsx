@@ -80,7 +80,7 @@ export function Hero({ streak = 0 }: HeroProps) {
           </p>
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-900/40 rounded-full">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-900/40 rounded-full border border-primary-200/60 dark:border-primary-800/40">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse-gentle" aria-hidden="true" />
             Your daily wellness companion
           </div>
@@ -133,7 +133,7 @@ export function Hero({ streak = 0 }: HeroProps) {
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <a
               href="#mood"
-              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 transition-colors shadow-sm shadow-primary-500/25 min-h-[44px]"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 active:scale-[0.98] transition-all shadow-sm shadow-primary-500/25 min-h-[44px]"
             >
               Start Checking In
               <svg className="ml-2 w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -142,7 +142,7 @@ export function Hero({ streak = 0 }: HeroProps) {
             </a>
             <a
               href="#breathe"
-              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors min-h-[44px]"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 active:scale-[0.98] transition-all min-h-[44px]"
             >
               Try Breathing Exercise
             </a>

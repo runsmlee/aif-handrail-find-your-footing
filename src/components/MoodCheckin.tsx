@@ -21,9 +21,10 @@ const MOOD_OPTIONS: MoodOption[] = [
 
 interface MoodCheckinProps {
   onMoodSelect?: (mood: MoodOption) => void;
+  onMoodCheckedIn?: () => void;
 }
 
-export function MoodCheckin({ onMoodSelect }: MoodCheckinProps) {
+export function MoodCheckin({ onMoodSelect, onMoodCheckedIn }: MoodCheckinProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const { history, addEntry, clearHistory } = useMoodHistory();
@@ -34,7 +35,8 @@ export function MoodCheckin({ onMoodSelect }: MoodCheckinProps) {
     setShowConfirmation(true);
     addEntry({ value: mood.value, label: mood.label, emoji: mood.emoji });
     onMoodSelect?.(mood);
-  }, [onMoodSelect, addEntry]);
+    onMoodCheckedIn?.();
+  }, [onMoodSelect, onMoodCheckedIn, addEntry]);
 
   return (
     <section id="mood" className="py-16 sm:py-24 bg-white dark:bg-slate-800 animate-section-hidden" aria-labelledby="mood-heading" ref={sectionRef}>

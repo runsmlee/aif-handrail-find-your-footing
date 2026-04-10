@@ -98,4 +98,14 @@ describe('App', () => {
     // Quote attribution should be present
     expect(screen.getByText(/— /)).toBeInTheDocument();
   });
+
+  it('renders the daily progress section', () => {
+    render(<App />);
+    expect(screen.getByText("Today's Progress")).toBeInTheDocument();
+  });
+
+  it('renders daily progress with initial zero state', () => {
+    render(<App />);
+    expect(screen.getByText('0/4')).toBeInTheDocument();
+  });
 });

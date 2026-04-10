@@ -70,7 +70,7 @@ export function CrisisResources() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{resource.name}</h3>
-                  <p className="mt-1 text-lg font-bold text-primary-600 dark:text-primary-400">{resource.phone}</p>
+                  <p className="mt-1 text-lg font-bold text-primary-600 dark:text-primary-400" aria-label={`Phone: ${resource.phone}`}>{resource.phone}</p>
                   <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{resource.description}</p>
                   <p className="mt-2 text-xs text-sage-700 dark:text-sage-400 font-medium">{resource.available}</p>
                 </div>

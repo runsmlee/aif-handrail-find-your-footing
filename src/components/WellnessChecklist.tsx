@@ -14,6 +14,10 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
   { id: 'reflect', label: 'Name one good thing today', icon: '\u{2B50}' },
 ];
 
+interface WellnessChecklistProps {
+  onProgressChange?: (progress: number, total: number) => void;
+}
+
 const STORAGE_KEY = 'handrail-checklist';
 
 function getTodayKey(): string {
@@ -46,12 +50,14 @@ function saveCheckedItems(items: string[]): void {
   }
 }
 
-export function WellnessChecklist() {
+export function WellnessChecklist({ onProgressChange }: WellnessChecklistProps) {
   const [checked, setChecked] = useState<string[]>([]);
 
   useEffect(() => {
-    setChecked(loadCheckedItems());
-  }, []);
+    const loaded = loadCheckedItems();
+    setChecked(loaded);
+    onProgressChange?.(loaded.length, CHECKLIST_ITEMS.length);
+  }, [onProgressChange]);
 
   const handleToggle = useCallback((id: string): void => {
     setChecked(prev => {
@@ -59,9 +65,10 @@ export function WellnessChecklist() {
         ? prev.filter(item => item !== id)
         : [...prev, id];
       saveCheckedItems(next);
+      onProgressChange?.(next.length, CHECKLIST_ITEMS.length);
       return next;
     });
-  }, []);
+  }, [onProgressChange]);
 
   const progress = checked.length;
   const total = CHECKLIST_ITEMS.length;

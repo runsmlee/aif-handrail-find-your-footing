@@ -150,6 +150,39 @@ html.dark body {
   animation: float 4s ease-in-out infinite;
 }
 
+/* Celebration pulse for completed items */
+@keyframes celebrate-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-celebrate {
+  animation: celebrate-pulse 0.4s ease-out;
+}
+
+/* Confetti-like shimmer for completion */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-out;
+}
+
 /* Scroll-triggered section animations */
 .animate-section-hidden {
   opacity: 0;

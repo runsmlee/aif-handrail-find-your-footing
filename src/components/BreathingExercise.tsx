@@ -14,7 +14,10 @@ interface PhaseConfig {
   instruction: string;
   duration: number;
   color: string;
-  darkColor: string;
+}
+
+interface BreathingExerciseProps {
+  onComplete?: () => void;
 }
 
 const DURATIONS: Record<Duration, DurationConfig> = {
@@ -23,18 +26,25 @@ const DURATIONS: Record<Duration, DurationConfig> = {
   extended: { label: '4 min', description: '6 cycles', cycles: 6 },
 };
 
-const PHASES: Record<Exclude<Phase, 'idle' | 'done'>, PhaseConfig> = {
-  inhale: { label: 'Breathe In', instruction: 'Slowly breathe in through your nose', duration: 4, color: 'bg-primary-400', darkColor: 'dark:bg-primary-500' },
-  hold: { label: 'Hold', instruction: 'Hold your breath gently', duration: 4, color: 'bg-primary-500', darkColor: 'dark:bg-primary-600' },
-  exhale: { label: 'Breathe Out', instruction: 'Slowly release through your mouth', duration: 4, color: 'bg-primary-300', darkColor: 'dark:bg-primary-400' },
+const PHASE_COLORS: Record<Exclude<Phase, 'idle' | 'done'>, string> = {
+  inhale: '#ef4444',
+  hold: '#dc2626',
+  exhale: '#f87171',
 };
 
-export function BreathingExercise() {
+const PHASES: Record<Exclude<Phase, 'idle' | 'done'>, Omit<PhaseConfig, 'color'>> = {
+  inhale: { label: 'Breathe In', instruction: 'Slowly breathe in through your nose', duration: 4 },
+  hold: { label: 'Hold', instruction: 'Hold your breath gently', duration: 4 },
+  exhale: { label: 'Breathe Out', instruction: 'Slowly release through your mouth', duration: 4 },
+};
+
+export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
   const [selectedDuration, setSelectedDuration] = useState<Duration>('standard');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasCompletedRef = useRef(false);
 
   const totalCycles = DURATIONS[selectedDuration].cycles;
 
@@ -50,9 +60,11 @@ export function BreathingExercise() {
     setPhase('idle');
     setCycleCount(0);
     setSecondsLeft(0);
+    hasCompletedRef.current = false;
   }, [clearTimer]);
 
   const startExercise = useCallback(() => {
+    hasCompletedRef.current = false;
     setPhase('inhale');
     setCycleCount(1);
     setSecondsLeft(PHASES.inhale.duration);
@@ -65,6 +77,10 @@ export function BreathingExercise() {
       if (phase === 'exhale') {
         if (cycleCount >= totalCycles) {
           setPhase('done');
+          if (!hasCompletedRef.current) {
+            hasCompletedRef.current = true;
+            onComplete?.();
+          }
           return;
         }
         setPhase('inhale');
@@ -85,16 +101,26 @@ export function BreathingExercise() {
     }, 1000);
 
     return clearTimer;
-  }, [phase, secondsLeft, cycleCount, totalCycles, clearTimer]);
+  }, [phase, secondsLeft, cycleCount, totalCycles, clearTimer, onComplete]);
 
   const currentPhaseConfig = phase !== 'idle' && phase !== 'done' ? PHASES[phase] : null;
+  const currentColor = phase !== 'idle' && phase !== 'done' ? PHASE_COLORS[phase] : '#cbd5e1';
 
+  // Calculate SVG ring progress for current phase
+  const phaseDuration = currentPhaseConfig?.duration ?? 4;
+  const phaseProgress = currentPhaseConfig ? (phaseDuration - secondsLeft) / phaseDuration : 0;
+  const ringRadius = 72;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringDashoffset = currentPhaseConfig
+    ? ringCircumference * (1 - phaseProgress)
+    : ringCircumference;
+
+  // Circle scale animation
   const circleScale = (() => {
     if (!currentPhaseConfig) return 1;
-    const progress = 1 - secondsLeft / currentPhaseConfig.duration;
-    if (phase === 'inhale') return 1 + progress * 0.3;
-    if (phase === 'hold') return 1.3;
-    if (phase === 'exhale') return 1.3 - progress * 0.3;
+    if (phase === 'inhale') return 1 + phaseProgress * 0.15;
+    if (phase === 'hold') return 1.15;
+    if (phase === 'exhale') return 1.15 - phaseProgress * 0.15;
     return 1;
   })();
 
@@ -141,19 +167,52 @@ export function BreathingExercise() {
             </div>
           )}
 
-          {/* Breathing circle */}
+          {/* Breathing visualization with SVG ring */}
           <div className="relative flex items-center justify-center h-56 sm:h-64 mb-8" aria-live="polite">
+            <svg
+              className="absolute w-44 h-44 sm:w-52 sm:h-52"
+              viewBox="0 0 160 160"
+              aria-hidden="true"
+            >
+              {/* Background ring */}
+              <circle
+                cx="80"
+                cy="80"
+                r={ringRadius}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                className="text-slate-200 dark:text-slate-700"
+              />
+              {/* Progress ring */}
+              <circle
+                cx="80"
+                cy="80"
+                r={ringRadius}
+                fill="none"
+                stroke={currentColor}
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringDashoffset}
+                className="transition-all duration-1000 ease-linear"
+                transform="rotate(-90 80 80)"
+                style={{ opacity: currentPhaseConfig ? 0.9 : 0 }}
+              />
+            </svg>
+
+            {/* Inner breathing circle */}
             <div
-              className={`w-40 h-40 sm:w-48 sm:h-48 rounded-full flex items-center justify-center transition-all duration-1000 ease-in-out ${
+              className={`w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center transition-all duration-1000 ease-in-out ${
                 isIdle || isDone
                   ? 'bg-slate-200 dark:bg-slate-700'
-                  : `${currentPhaseConfig?.color ?? ''} ${currentPhaseConfig?.darkColor ?? ''}`
+                  : ''
               }`}
-              style={{
+              style={isIdle || isDone ? {} : {
                 transform: `scale(${circleScale})`,
-                opacity: isIdle ? 0.5 : 0.85,
+                backgroundColor: currentColor,
+                opacity: 0.85,
               }}
-              aria-hidden="true"
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
@@ -178,7 +237,7 @@ export function BreathingExercise() {
                   <p className="text-xl sm:text-2xl font-bold text-white">
                     {currentPhaseConfig.label}
                   </p>
-                  <p className="text-sm text-white/80 mt-1">
+                  <p className="text-3xl font-bold text-white/90 mt-1">
                     {secondsLeft}
                   </p>
                   <p className="text-xs text-white/60 mt-2 px-4">
