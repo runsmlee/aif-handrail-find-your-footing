@@ -9,6 +9,7 @@ interface HeaderProps {
 const NAV_ITEMS = [
   { label: 'Check In', href: '#mood', id: 'mood' },
   { label: 'Breathe', href: '#breathe', id: 'breathe' },
+  { label: 'Meditate', href: '#mindfulness', id: 'mindfulness' },
   { label: 'Ground Yourself', href: '#grounding', id: 'grounding' },
   { label: 'Support', href: '#crisis', id: 'crisis' },
 ];

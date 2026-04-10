@@ -26,11 +26,31 @@ const QUOTES: MotivationalQuote[] = [
   { text: 'The only way out is through.', author: 'Robert Frost' },
 ];
 
+const AFFIRMATIONS: string[] = [
+  'I am worthy of kindness, especially from myself.',
+  'I take things one moment at a time.',
+  'My feelings are valid, and I allow myself to feel them.',
+  'I am doing the best I can, and that is enough.',
+  'I choose to focus on what I can control.',
+  'I am stronger than I think.',
+  'It\'s okay to ask for help when I need it.',
+  'I deserve rest and compassion.',
+  'I am allowed to set boundaries.',
+  'Progress, not perfection.',
+];
+
 function getDailyQuote(): MotivationalQuote {
   const dayOfYear = Math.floor(
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
   );
   return QUOTES[dayOfYear % QUOTES.length];
+}
+
+function getDailyAffirmation(): string {
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return AFFIRMATIONS[dayOfYear % AFFIRMATIONS.length];
 }
 
 function getStreakMilestone(streak: number): { label: string; next: number } | null {
@@ -47,6 +67,7 @@ function getStreakMilestone(streak: number): { label: string; next: number } | n
 export function Hero({ streak = 0 }: HeroProps) {
   const greeting = useMemo(() => getTimeGreeting(), []);
   const quote = useMemo(() => getDailyQuote(), []);
+  const affirmation = useMemo(() => getDailyAffirmation(), []);
   const milestone = useMemo(() => getStreakMilestone(streak), [streak]);
 
   return (
@@ -146,6 +167,16 @@ export function Hero({ streak = 0 }: HeroProps) {
             >
               Try Breathing Exercise
             </a>
+          </div>
+
+          {/* Daily affirmation */}
+          <div className="mt-6 sm:mt-8 p-4 bg-primary-50/60 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800/40 rounded-xl max-w-lg">
+            <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-1.5">
+              Today&apos;s Affirmation
+            </p>
+            <p className="text-sm text-primary-800 dark:text-primary-200 font-medium leading-relaxed">
+              {affirmation}
+            </p>
           </div>
 
           {/* Daily quote */}

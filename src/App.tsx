@@ -14,8 +14,14 @@ import { useMoodHistory } from './hooks/useMoodHistory';
 import { useDailyProgress } from './hooks/useDailyProgress';
 
 // Lazy load heavy sections to reduce initial bundle
+const MoodInsights = lazy(() =>
+  import('./components/MoodInsights').then(m => ({ default: m.MoodInsights }))
+);
 const BreathingExercise = lazy(() =>
   import('./components/BreathingExercise').then(m => ({ default: m.BreathingExercise }))
+);
+const MindfulnessTimer = lazy(() =>
+  import('./components/MindfulnessTimer').then(m => ({ default: m.MindfulnessTimer }))
 );
 const GroundingExercise = lazy(() =>
   import('./components/GroundingExercise').then(m => ({ default: m.GroundingExercise }))
@@ -29,6 +35,9 @@ const CrisisResources = lazy(() =>
 const Footer = lazy(() =>
   import('./components/Footer').then(m => ({ default: m.Footer }))
 );
+const WelcomeOnboarding = lazy(() =>
+  import('./components/WelcomeOnboarding').then(m => ({ default: m.WelcomeOnboarding }))
+);
 
 function SectionLoader(): React.ReactElement {
   return (
@@ -41,12 +50,12 @@ function SectionLoader(): React.ReactElement {
   );
 }
 
-const SECTION_IDS = ['mood', 'breathe', 'grounding', 'gratitude', 'crisis'];
+const SECTION_IDS = ['mood', 'breathe', 'mindfulness', 'grounding', 'gratitude', 'crisis'];
 
 export function App() {
   const activeSection = useScrollSpy({ sectionIds: SECTION_IDS, offset: 120 });
   const { theme, toggleTheme } = useTheme();
-  const { streak } = useMoodHistory();
+  const { history, streak } = useMoodHistory();
   const { activity, markMoodCheckedIn, updateChecklistProgress, markBreathingDone, markGratitudeDone } = useDailyProgress();
 
   const navSectionIds = useMemo(() => SECTION_IDS, []);
@@ -61,6 +70,14 @@ export function App() {
       >
         Skip to main content
       </a>
+
+      {/* Onboarding modal for first-time users */}
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <WelcomeOnboarding />
+        </Suspense>
+      </ErrorBoundary>
+
       <ErrorBoundary>
         <Header activeSection={activeSection} theme={theme} onToggleTheme={toggleTheme} />
       </ErrorBoundary>
@@ -87,11 +104,21 @@ export function App() {
           <MoodCheckin onMoodCheckedIn={markMoodCheckedIn} />
         </ErrorBoundary>
         <ErrorBoundary>
+          <Suspense fallback={<SectionLoader />}>
+            <MoodInsights history={history} />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary>
           <WellnessChecklist onProgressChange={updateChecklistProgress} />
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
             <BreathingExercise onComplete={markBreathingDone} />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Suspense fallback={<SectionLoader />}>
+            <MindfulnessTimer />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>

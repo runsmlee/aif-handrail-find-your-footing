@@ -1,0 +1,16 @@
+{
+  "name": "Handrail — Find Your Footing",
+  "short_name": "Handrail",
+  "description": "A gentle mental wellness companion for daily grounding, mood tracking, and guided breathing exercises.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#ef4444",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23ef4444' width='100' height='100' rx='20'/><text y='.9em' font-size='70' x='15'>🤝</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

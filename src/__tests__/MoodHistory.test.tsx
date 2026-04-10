@@ -16,7 +16,7 @@ describe('MoodHistory', () => {
     ];
     render(<MoodHistory history={history} onClear={() => {}} />);
     expect(screen.getByText('Great')).toBeInTheDocument();
-    expect(screen.getByText('Okay')).toBeInTheDocument();
+    expect(screen.getAllByText('Okay').length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows relative timestamps in entry list', () => {
@@ -72,6 +72,6 @@ describe('MoodHistory', () => {
       { value: 'great', label: 'Great', emoji: '\u{1F60A}', timestamp: Date.now() - 60000 },
     ];
     render(<MoodHistory history={history} onClear={() => {}} />);
-    expect(screen.getByRole('img', { name: /Mood visualization/ })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Mood trend chart/ })).toBeInTheDocument();
   });
 });

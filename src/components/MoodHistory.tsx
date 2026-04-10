@@ -13,14 +13,6 @@ const MOOD_SCORES: Record<string, number> = {
   struggling: 1,
 };
 
-const MOOD_COLORS: Record<string, string> = {
-  great: 'bg-sage-500',
-  good: 'bg-sage-400',
-  okay: 'bg-amber-400',
-  low: 'bg-primary-400',
-  struggling: 'bg-primary-600',
-};
-
 function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diffMs = now - timestamp;
@@ -91,43 +83,109 @@ export function MoodHistory({ history, onClear }: MoodHistoryProps) {
         </p>
       )}
 
-      {/* Mini visualization */}
+      {/* Mini visualization - SVG line chart */}
       {vizEntries.length > 0 && (
         <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-          <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Recent mood</p>
-          <div className="flex items-end gap-1 h-12" role="img" aria-label="Mood visualization showing recent entries">
-            {vizEntries.map((entry) => {
-              const score = MOOD_SCORES[entry.value] ?? 3;
-              const height = score * 20; // 20% per point
-              const colorClass = MOOD_COLORS[entry.value] ?? 'bg-slate-300';
-              return (
-                <div
-                  key={entry.timestamp}
-                  className="flex-1 flex items-end justify-center group relative"
-                >
-                  <div
-                    className={`w-full rounded-t-sm transition-all duration-300 ${colorClass} opacity-80`}
-                    style={{ height: `${height}%` }}
-                    title={`${entry.label} - ${formatRelativeTime(entry.timestamp)}`}
-                  />
-                  {/* Tooltip on hover */}
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block whitespace-nowrap px-2 py-1 text-[10px] bg-slate-800 dark:bg-slate-700 text-white rounded shadow-lg z-10">
-                    {entry.emoji} {entry.label}
-                  </div>
-                </div>
-              );
-            })}
+          <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Recent mood trend</p>
+          <div className="relative" role="img" aria-label={`Mood trend chart showing ${vizEntries.length} recent entries`}>
+            <svg viewBox="0 0 200 50" className="w-full h-14" preserveAspectRatio="none" aria-hidden="true">
+              {/* Grid lines */}
+              <line x1="0" y1="10" x2="200" y2="10" stroke="currentColor" strokeWidth="0.5" className="text-slate-200 dark:text-slate-700" />
+              <line x1="0" y1="25" x2="200" y2="25" stroke="currentColor" strokeWidth="0.5" className="text-slate-200 dark:text-slate-700" />
+              <line x1="0" y1="40" x2="200" y2="40" stroke="currentColor" strokeWidth="0.5" className="text-slate-200 dark:text-slate-700" />
+
+              {/* Area fill */}
+              {vizEntries.length > 1 && (
+                <path
+                  d={(() => {
+                    const points = vizEntries.map((entry, i) => {
+                      const score = MOOD_SCORES[entry.value] ?? 3;
+                      const x = vizEntries.length > 1 ? (i / (vizEntries.length - 1)) * 200 : 100;
+                      const y = 45 - ((score - 1) / 4) * 36;
+                      return { x, y };
+                    });
+                    const pathParts = points.map((p, i) => {
+                      if (i === 0) return `M${p.x},${p.y}`;
+                      const prev = points[i - 1];
+                      const cpx1 = prev.x + (p.x - prev.x) * 0.4;
+                      const cpx2 = prev.x + (p.x - prev.x) * 0.6;
+                      return ` C${cpx1},${prev.y} ${cpx2},${p.y} ${p.x},${p.y}`;
+                    });
+                    const lastPoint = points[points.length - 1];
+                    const firstPoint = points[0];
+                    return pathParts.join(' ') + ` L${lastPoint.x},50 L${firstPoint.x},50 Z`;
+                  })()}
+                  fill="url(#moodGradient)"
+                  opacity="0.3"
+                />
+              )}
+
+              {/* Line */}
+              {vizEntries.length > 1 && (
+                <path
+                  d={(() => {
+                    const points = vizEntries.map((entry, i) => {
+                      const score = MOOD_SCORES[entry.value] ?? 3;
+                      const x = vizEntries.length > 1 ? (i / (vizEntries.length - 1)) * 200 : 100;
+                      const y = 45 - ((score - 1) / 4) * 36;
+                      return { x, y };
+                    });
+                    return points.map((p, i) => {
+                      if (i === 0) return `M${p.x},${p.y}`;
+                      const prev = points[i - 1];
+                      const cpx1 = prev.x + (p.x - prev.x) * 0.4;
+                      const cpx2 = prev.x + (p.x - prev.x) * 0.6;
+                      return ` C${cpx1},${prev.y} ${cpx2},${p.y} ${p.x},${p.y}`;
+                    }).join(' ');
+                  })()}
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              )}
+
+              {/* Data points */}
+              {vizEntries.map((entry, i) => {
+                const score = MOOD_SCORES[entry.value] ?? 3;
+                const x = vizEntries.length > 1 ? (i / (vizEntries.length - 1)) * 200 : 100;
+                const y = 45 - ((score - 1) / 4) * 36;
+                return (
+                  <g key={entry.timestamp}>
+                    <circle cx={x} cy={y} r="3" fill="#ef4444" stroke="white" strokeWidth="1.5" />
+                  </g>
+                );
+              })}
+
+              <defs>
+                <linearGradient id="moodGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Labels for hover */}
+            <div className="flex justify-between mt-0.5">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                {formatRelativeTime(vizEntries[0].timestamp)}
+              </span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                {formatRelativeTime(vizEntries[vizEntries.length - 1].timestamp)}
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between mt-1">
-            <span className="text-[10px] text-slate-400 dark:text-slate-500">
-              {vizEntries.length > 0
-                ? formatRelativeTime(vizEntries[0].timestamp)
-                : ''}
+
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-sage-500" aria-hidden="true" /> Great/Good
             </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500">
-              {vizEntries.length > 0
-                ? formatRelativeTime(vizEntries[vizEntries.length - 1].timestamp)
-                : ''}
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-amber-400" aria-hidden="true" /> Okay
+            </span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-primary-500" aria-hidden="true" /> Low/Struggling
             </span>
           </div>
         </div>
