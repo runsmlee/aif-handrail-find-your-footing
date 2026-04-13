@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useBreathingSessions } from '../hooks/useBreathingSessions';
 
 type Phase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'done';
 type Duration = 'quick' | 'standard' | 'extended';
@@ -45,6 +46,7 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
   const [selectedDuration, setSelectedDuration] = useState<Duration>('standard');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasCompletedRef = useRef(false);
+  const { sessionsThisWeek, addSession } = useBreathingSessions();
 
   const totalCycles = DURATIONS[selectedDuration].cycles;
 
@@ -70,6 +72,13 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
     setSecondsLeft(PHASES.inhale.duration);
   }, []);
 
+  // Track total seconds for this session
+  const totalSessionSeconds = useMemo((): number => {
+    const cycles = DURATIONS[selectedDuration].cycles;
+    // Each cycle = inhale + hold + exhale = 4 + 4 + 4 = 12 seconds
+    return cycles * 12;
+  }, [selectedDuration]);
+
   useEffect(() => {
     if (phase === 'idle' || phase === 'done') return;
 
@@ -79,6 +88,7 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
           setPhase('done');
           if (!hasCompletedRef.current) {
             hasCompletedRef.current = true;
+            addSession('Box Breathing', totalSessionSeconds);
             onComplete?.();
           }
           return;
@@ -137,6 +147,14 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
           >
             Box Breathing
           </h2>
+          {sessionsThisWeek > 0 && (
+            <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 text-xs font-medium text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/20 rounded-full border border-sage-200 dark:border-sage-800">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+              </svg>
+              Sessions this week: {sessionsThisWeek}
+            </span>
+          )}
           <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
             A simple technique used by first responders. 4 seconds in, 4 hold, 4 out.
           </p>

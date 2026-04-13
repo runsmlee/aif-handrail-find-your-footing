@@ -1,4 +1,5 @@
 import { type MoodEntry } from '../hooks/useMoodHistory';
+import { useCallback } from 'react';
 
 interface MoodHistoryProps {
   history: MoodEntry[];
@@ -42,7 +43,30 @@ function getMoodTrendLabel(history: MoodEntry[]): string | null {
   return 'holding steady';
 }
 
+function exportMoodHistory(history: MoodEntry[]): void {
+  const header = 'date,mood,label,emoji,notes';
+  const rows = history.map(entry => {
+    const date = new Date(entry.timestamp).toISOString().split('T')[0];
+    const escapedLabel = `"${entry.label.replace(/"/g, '""')}"`;
+    return `${date},${entry.value},${escapedLabel},${entry.emoji},`;
+  });
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `handrail-mood-history-${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export function MoodHistory({ history, onClear }: MoodHistoryProps) {
+  const handleExport = useCallback(() => {
+    exportMoodHistory(history);
+  }, [history]);
   if (history.length === 0) {
     return (
       <div className="text-center py-8 px-4">
@@ -212,13 +236,23 @@ export function MoodHistory({ history, onClear }: MoodHistoryProps) {
       </div>
 
       {history.length > 1 && (
-        <button
-          type="button"
-          className="mt-4 text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-          onClick={onClear}
-        >
-          Clear history
-        </button>
+        <div className="mt-4 flex items-center gap-4">
+          <button
+            type="button"
+            className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            onClick={handleExport}
+            aria-label="Export mood history as CSV"
+          >
+            Export CSV
+          </button>
+          <button
+            type="button"
+            className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            onClick={onClear}
+          >
+            Clear history
+          </button>
+        </div>
       )}
     </div>
   );

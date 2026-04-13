@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useMemo } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { DailySummary } from './components/DailySummary';
 import { DailyTip } from './components/DailyTip';
 import { QuickActions } from './components/QuickActions';
 import { MoodCheckin } from './components/MoodCheckin';
@@ -84,6 +85,9 @@ export function App() {
       <main id="main-content" className="flex-1">
         <ErrorBoundary>
           <Hero streak={streak} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <DailySummary />
         </ErrorBoundary>
         <ErrorBoundary>
           <DailyProgress
