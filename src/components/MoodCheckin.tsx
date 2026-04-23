@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { MoodHistory } from './MoodHistory';
-import { useMoodHistory } from '../hooks/useMoodHistory';
+import { useMoodHistory, type MoodEntry } from '../hooks/useMoodHistory';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 interface MoodOption {
@@ -22,13 +22,21 @@ const MOOD_OPTIONS: MoodOption[] = [
 interface MoodCheckinProps {
   onMoodSelect?: (mood: MoodOption) => void;
   onMoodCheckedIn?: () => void;
+  sharedAddEntry?: (entry: Omit<MoodEntry, 'timestamp'>) => void;
+  sharedHistory?: MoodEntry[];
+  sharedClearHistory?: () => void;
 }
 
-export function MoodCheckin({ onMoodSelect, onMoodCheckedIn }: MoodCheckinProps) {
+export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sharedHistory, sharedClearHistory }: MoodCheckinProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const { history, addEntry, clearHistory } = useMoodHistory();
+  const localMoodHistory = useMoodHistory();
   const sectionRef = useScrollAnimation();
+
+  // Use shared state when provided (from parent), otherwise fall back to local hook
+  const addEntry = sharedAddEntry ?? localMoodHistory.addEntry;
+  const history = sharedHistory ?? localMoodHistory.history;
+  const clearHistory = sharedClearHistory ?? localMoodHistory.clearHistory;
 
   const handleSelect = useCallback((mood: MoodOption) => {
     setSelectedMood(mood.value);

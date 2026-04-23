@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MoodCheckin } from '../components/MoodCheckin';
 
 // Mock localStorage
@@ -82,5 +82,57 @@ describe('MoodCheckin', () => {
     render(<MoodCheckin />);
     fireEvent.click(screen.getByLabelText('Great: Feeling wonderful'));
     expect(localStorageMock.setItem).toHaveBeenCalled();
+  });
+
+  it('uses sharedAddEntry when provided instead of internal hook', () => {
+    const sharedAddEntry = vi.fn();
+    const sharedHistory: Array<{ value: string; label: string; emoji: string; timestamp: number }> = [];
+    render(
+      <MoodCheckin
+        sharedAddEntry={sharedAddEntry}
+        sharedHistory={sharedHistory}
+        sharedClearHistory={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByLabelText('Great: Feeling wonderful'));
+    expect(sharedAddEntry).toHaveBeenCalledTimes(1);
+    expect(sharedAddEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'great', label: 'Great' }),
+    );
+  });
+
+  it('calls onMoodCheckedIn when mood is selected with shared state', () => {
+    const onMoodCheckedIn = vi.fn();
+    const sharedAddEntry = vi.fn();
+    const sharedHistory: Array<{ value: string; label: string; emoji: string; timestamp: number }> = [];
+    render(
+      <MoodCheckin
+        onMoodCheckedIn={onMoodCheckedIn}
+        sharedAddEntry={sharedAddEntry}
+        sharedHistory={sharedHistory}
+        sharedClearHistory={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByLabelText('Good: Doing alright'));
+    expect(onMoodCheckedIn).toHaveBeenCalledTimes(1);
+    expect(sharedAddEntry).toHaveBeenCalledTimes(1);
+  });
+
+  it('displays shared history entries when provided', () => {
+    const sharedHistory = [
+      { value: 'okay', label: 'Okay', emoji: '😐', timestamp: Date.now() - 3600000 },
+    ];
+    render(
+      <MoodCheckin
+        sharedAddEntry={vi.fn()}
+        sharedHistory={sharedHistory}
+        sharedClearHistory={vi.fn()}
+      />
+    );
+    // The history entry should render with the label in the list
+    const historySection = screen.getByRole('list', { name: 'Recent mood entries' });
+    expect(historySection).toBeInTheDocument();
+    // The entry should show "Okay" in the history
+    expect(within(historySection).getByText('Okay')).toBeInTheDocument();
   });
 });

@@ -6,6 +6,7 @@ export interface DailyActivity {
   checklistTotal: number;
   breathingDone: boolean;
   gratitudeDone: boolean;
+  mindfulnessDone: boolean;
   breathingSessions: number;
   gratitudeEntries: number;
 }
@@ -23,6 +24,7 @@ function getDefaultActivity(): DailyActivity {
     checklistTotal: 5,
     breathingDone: false,
     gratitudeDone: false,
+    mindfulnessDone: false,
     breathingSessions: 0,
     gratitudeEntries: 0,
   };
@@ -43,6 +45,7 @@ function loadActivity(): DailyActivity {
       checklistTotal: typeof data.checklistTotal === 'number' ? data.checklistTotal : 5,
       breathingDone: typeof data.breathingDone === 'boolean' ? data.breathingDone : false,
       gratitudeDone: typeof data.gratitudeDone === 'boolean' ? data.gratitudeDone : false,
+      mindfulnessDone: typeof data.mindfulnessDone === 'boolean' ? data.mindfulnessDone : false,
       breathingSessions: typeof data.breathingSessions === 'number' ? data.breathingSessions : 0,
       gratitudeEntries: typeof data.gratitudeEntries === 'number' ? data.gratitudeEntries : 0,
     };
@@ -109,11 +112,16 @@ export function useDailyProgress() {
     });
   }, []);
 
+  const markMindfulnessDone = useCallback((): void => {
+    updateActivity({ mindfulnessDone: true });
+  }, [updateActivity]);
+
   return {
     activity,
     markMoodCheckedIn,
     updateChecklistProgress,
     markBreathingDone,
     markGratitudeDone,
+    markMindfulnessDone,
   };
 }

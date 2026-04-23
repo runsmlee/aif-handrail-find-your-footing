@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { App } from '../App';
 
 // Mock IntersectionObserver
@@ -56,29 +56,39 @@ describe('App', () => {
     expect(screen.getByText('Get Help Now')).toBeInTheDocument();
   });
 
-  it('renders the daily tip', () => {
+  it('renders the daily tip', async () => {
     render(<App />);
-    expect(screen.getByText('Daily Tip')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Daily Tip')).toBeInTheDocument();
+    });
   });
 
-  it('renders the mood check-in section', () => {
+  it('renders the mood check-in section', async () => {
     render(<App />);
-    expect(screen.getByText('How are you feeling right now?')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('How are you feeling right now?')).toBeInTheDocument();
+    });
   });
 
-  it('renders the mood history section', () => {
+  it('renders the mood history section', async () => {
     render(<App />);
-    expect(screen.getByText('Recent Check-ins')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Recent Check-ins')).toBeInTheDocument();
+    });
   });
 
-  it('renders the wellness checklist', () => {
+  it('renders the wellness checklist', async () => {
     render(<App />);
-    expect(screen.getByText('Daily Wellness Checklist')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Daily Wellness Checklist')).toBeInTheDocument();
+    });
   });
 
-  it('renders the quick actions section', () => {
+  it('renders the quick actions section', async () => {
     render(<App />);
-    expect(screen.getByText('Check Your Mood')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Check Your Mood')).toBeInTheDocument();
+    });
   });
 
   it('renders a time-based greeting', () => {
@@ -95,8 +105,9 @@ describe('App', () => {
 
   it('renders the daily quote in hero', () => {
     render(<App />);
-    // Quote attribution should be present
-    expect(screen.getByText(/— /)).toBeInTheDocument();
+    // Quote attribution should be present (em dash + author)
+    const attributions = screen.getAllByText(/— /);
+    expect(attributions.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders the daily progress section', () => {

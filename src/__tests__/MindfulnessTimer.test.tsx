@@ -90,4 +90,28 @@ describe('MindfulnessTimer', () => {
     expect(screen.getByText('Session complete')).toBeInTheDocument();
     expect(screen.getByText('Start Again')).toBeInTheDocument();
   });
+
+  it('calls onComplete callback when timer finishes', () => {
+    const onComplete = vi.fn();
+    render(<MindfulnessTimer onComplete={onComplete} />);
+    // Select 1 min duration and start
+    fireEvent.click(screen.getByLabelText('1 min: Quick pause'));
+    fireEvent.click(screen.getByText('Begin'));
+    // Advance timer by 60 seconds
+    act(() => {
+      vi.advanceTimersByTime(61000);
+    });
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onComplete when timer is reset before completion', () => {
+    const onComplete = vi.fn();
+    render(<MindfulnessTimer onComplete={onComplete} />);
+    fireEvent.click(screen.getByText('Begin'));
+    fireEvent.click(screen.getByText('Reset'));
+    act(() => {
+      vi.advanceTimersByTime(301000);
+    });
+    expect(onComplete).not.toHaveBeenCalled();
+  });
 });

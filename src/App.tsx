@@ -1,11 +1,6 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { DailySummary } from './components/DailySummary';
-import { DailyTip } from './components/DailyTip';
-import { QuickActions } from './components/QuickActions';
-import { MoodCheckin } from './components/MoodCheckin';
-import { WellnessChecklist } from './components/WellnessChecklist';
 import { DailyProgress } from './components/DailyProgress';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -15,6 +10,21 @@ import { useMoodHistory } from './hooks/useMoodHistory';
 import { useDailyProgress } from './hooks/useDailyProgress';
 
 // Lazy load heavy sections to reduce initial bundle
+const DailySummary = lazy(() =>
+  import('./components/DailySummary').then(m => ({ default: m.DailySummary }))
+);
+const DailyTip = lazy(() =>
+  import('./components/DailyTip').then(m => ({ default: m.DailyTip }))
+);
+const QuickActions = lazy(() =>
+  import('./components/QuickActions').then(m => ({ default: m.QuickActions }))
+);
+const MoodCheckin = lazy(() =>
+  import('./components/MoodCheckin').then(m => ({ default: m.MoodCheckin }))
+);
+const WellnessChecklist = lazy(() =>
+  import('./components/WellnessChecklist').then(m => ({ default: m.WellnessChecklist }))
+);
 const MoodInsights = lazy(() =>
   import('./components/MoodInsights').then(m => ({ default: m.MoodInsights }))
 );
@@ -56,12 +66,8 @@ const SECTION_IDS = ['mood', 'breathe', 'mindfulness', 'grounding', 'gratitude',
 export function App() {
   const activeSection = useScrollSpy({ sectionIds: SECTION_IDS, offset: 120 });
   const { theme, toggleTheme } = useTheme();
-  const { history, streak } = useMoodHistory();
-  const { activity, markMoodCheckedIn, updateChecklistProgress, markBreathingDone, markGratitudeDone } = useDailyProgress();
-
-  const navSectionIds = useMemo(() => SECTION_IDS, []);
-
-  void navSectionIds; // used by scroll spy
+  const { history, addEntry, clearHistory, streak } = useMoodHistory();
+  const { activity, markMoodCheckedIn, updateChecklistProgress, markBreathingDone, markGratitudeDone, markMindfulnessDone } = useDailyProgress();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -87,7 +93,9 @@ export function App() {
           <Hero streak={streak} />
         </ErrorBoundary>
         <ErrorBoundary>
-          <DailySummary />
+          <Suspense fallback={<SectionLoader />}>
+            <DailySummary />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
           <DailyProgress
@@ -99,13 +107,24 @@ export function App() {
           />
         </ErrorBoundary>
         <ErrorBoundary>
-          <DailyTip />
+          <Suspense fallback={<SectionLoader />}>
+            <DailyTip />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
-          <QuickActions />
+          <Suspense fallback={<SectionLoader />}>
+            <QuickActions />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
-          <MoodCheckin onMoodCheckedIn={markMoodCheckedIn} />
+          <Suspense fallback={<SectionLoader />}>
+            <MoodCheckin
+              onMoodCheckedIn={markMoodCheckedIn}
+              sharedAddEntry={addEntry}
+              sharedHistory={history}
+              sharedClearHistory={clearHistory}
+            />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
@@ -113,7 +132,9 @@ export function App() {
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
-          <WellnessChecklist onProgressChange={updateChecklistProgress} />
+          <Suspense fallback={<SectionLoader />}>
+            <WellnessChecklist onProgressChange={updateChecklistProgress} />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
@@ -122,7 +143,7 @@ export function App() {
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
-            <MindfulnessTimer />
+            <MindfulnessTimer onComplete={markMindfulnessDone} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>

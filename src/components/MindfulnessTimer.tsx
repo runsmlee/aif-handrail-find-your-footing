@@ -27,13 +27,18 @@ const AMBIENT_MESSAGES = [
   'Peace flows through you...',
 ];
 
-export function MindfulnessTimer() {
+interface MindfulnessTimerProps {
+  onComplete?: () => void;
+}
+
+export function MindfulnessTimer({ onComplete }: MindfulnessTimerProps) {
   const sectionRef = useScrollAnimation();
   const [state, setState] = useState<TimerState>('idle');
   const [selectedSeconds, setSelectedSeconds] = useState(300);
   const [remainingSeconds, setRemainingSeconds] = useState(300);
   const [messageIndex, setMessageIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasCompletedRef = useRef(false);
 
   const clearTimer = useCallback(() => {
     if (intervalRef.current) {
@@ -48,11 +53,16 @@ export function MindfulnessTimer() {
 
   useEffect(() => {
     if (state === 'running') {
+      hasCompletedRef.current = false;
       intervalRef.current = setInterval(() => {
         setRemainingSeconds(prev => {
           if (prev <= 1) {
             clearTimer();
             setState('complete');
+            if (!hasCompletedRef.current) {
+              hasCompletedRef.current = true;
+              onComplete?.();
+            }
             return 0;
           }
           return prev - 1;
@@ -63,7 +73,7 @@ export function MindfulnessTimer() {
     }
 
     return clearTimer;
-  }, [state, clearTimer]);
+  }, [state, clearTimer, onComplete]);
 
   // Rotate ambient messages every 8 seconds during running
   useEffect(() => {
@@ -79,6 +89,7 @@ export function MindfulnessTimer() {
   const handleStart = useCallback(() => {
     setRemainingSeconds(selectedSeconds);
     setMessageIndex(0);
+    hasCompletedRef.current = false;
     setState('running');
   }, [selectedSeconds]);
 
