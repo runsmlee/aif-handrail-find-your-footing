@@ -46,6 +46,30 @@ export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sha
     onMoodCheckedIn?.();
   }, [onMoodSelect, onMoodCheckedIn, addEntry]);
 
+  const handleRadioKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const currentIndex = MOOD_OPTIONS.findIndex(m => m.value === selectedMood);
+    let nextIndex = currentIndex;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      nextIndex = currentIndex < MOOD_OPTIONS.length - 1 ? currentIndex + 1 : 0;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      nextIndex = currentIndex > 0 ? currentIndex - 1 : MOOD_OPTIONS.length - 1;
+    } else {
+      return;
+    }
+
+    const nextMood = MOOD_OPTIONS[nextIndex];
+    if (nextMood) {
+      handleSelect(nextMood);
+      // Move focus to the newly selected button
+      const buttons = (e.currentTarget as HTMLElement).querySelectorAll('[role="radio"]');
+      const btn = buttons[nextIndex] as HTMLElement | undefined;
+      btn?.focus();
+    }
+  }, [selectedMood, handleSelect]);
+
   return (
     <section id="mood" className="py-16 sm:py-24 bg-white dark:bg-slate-800 animate-section-hidden" aria-labelledby="mood-heading" ref={sectionRef}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,6 +94,7 @@ export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sha
                   className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3 sm:gap-4"
                   role="radiogroup"
                   aria-labelledby="mood-heading"
+                  onKeyDown={handleRadioKeyDown}
                 >
                   {MOOD_OPTIONS.map((mood) => (
                     <button

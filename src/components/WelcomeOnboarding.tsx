@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const STORAGE_KEY = 'handrail-onboarding-complete';
 const ONBOARDING_STEPS = [
@@ -32,6 +32,8 @@ const ONBOARDING_STEPS = [
 export function WelcomeOnboarding() {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     try {
@@ -43,6 +45,21 @@ export function WelcomeOnboarding() {
       // localStorage unavailable
     }
   }, []);
+
+  // Focus trap: save previous focus and restore on close
+  useEffect(() => {
+    if (visible) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      // Auto-focus the dialog for screen readers
+      const timer = setTimeout(() => {
+        dialogRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [visible]);
 
   const handleClose = useCallback((): void => {
     setVisible(false);
@@ -81,6 +98,8 @@ export function WelcomeOnboarding() {
       aria-labelledby="onboarding-title"
       aria-describedby="onboarding-desc"
       onKeyDown={handleKeyDown}
+      ref={dialogRef}
+      tabIndex={-1}
     >
       <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
         {/* Progress bar */}

@@ -50,15 +50,26 @@ const WelcomeOnboarding = lazy(() =>
   import('./components/WelcomeOnboarding').then(m => ({ default: m.WelcomeOnboarding }))
 );
 
-function SectionLoader(): React.ReactElement {
+function SkeletonPulse(): React.ReactElement {
   return (
-    <div className="flex items-center justify-center py-24" aria-hidden="true">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
-        <span className="text-sm text-slate-400">Loading...</span>
+    <div className="space-y-6 py-12 sm:py-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" aria-hidden="true">
+      {/* Section title skeleton */}
+      <div className="text-center space-y-3">
+        <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg mx-auto animate-pulse" />
+        <div className="h-4 w-64 bg-slate-100 dark:bg-slate-700 rounded mx-auto animate-pulse" />
+      </div>
+      {/* Content block skeleton */}
+      <div className="max-w-lg mx-auto space-y-4">
+        <div className="h-20 bg-slate-100 dark:bg-slate-700/60 rounded-2xl animate-pulse" />
+        <div className="h-20 bg-slate-100 dark:bg-slate-700/60 rounded-2xl animate-pulse" />
+        <div className="h-12 w-32 bg-slate-100 dark:bg-slate-700/60 rounded-xl mx-auto animate-pulse" />
       </div>
     </div>
   );
+}
+
+function SectionLoader(): React.ReactElement {
+  return <SkeletonPulse />;
 }
 
 const SECTION_IDS = ['mood', 'breathe', 'mindfulness', 'grounding', 'gratitude', 'crisis'];
