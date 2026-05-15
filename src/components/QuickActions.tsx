@@ -37,7 +37,9 @@ const ACTIONS: QuickAction[] = [
   },
 ];
 
-export function QuickActions() {
+import { memo } from 'react';
+
+export const QuickActions = memo(function QuickActions() {
   return (
     <section className="py-10 sm:py-14 bg-slate-50 dark:bg-slate-900" aria-labelledby="quick-actions-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,4 +64,4 @@ export function QuickActions() {
       </div>
     </section>
   );
-}
+});

@@ -32,7 +32,9 @@ const RESOURCES: Resource[] = [
   },
 ];
 
-export function CrisisResources() {
+import { memo } from 'react';
+
+export const CrisisResources = memo(function CrisisResources() {
   return (
     <section id="crisis" className="py-16 sm:py-24 bg-slate-50 dark:bg-slate-900" aria-labelledby="crisis-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,4 +87,4 @@ export function CrisisResources() {
       </div>
     </section>
   );
-}
+});

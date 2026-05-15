@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface GratitudeEntry {
   text: string;
@@ -70,6 +70,16 @@ export function GratitudeJournal({ onEntrySaved }: GratitudeJournalProps) {
   const [entries, setEntries] = useState<GratitudeEntry[]>([]);
   const [currentText, setCurrentText] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up success timer on unmount
+  useEffect(() => {
+    return () => {
+      if (successTimerRef.current) {
+        clearTimeout(successTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     setEntries(loadEntries());
@@ -95,7 +105,10 @@ export function GratitudeJournal({ onEntrySaved }: GratitudeJournalProps) {
     setCurrentText('');
     setShowSuccess(true);
     onEntrySaved?.();
-    setTimeout(() => setShowSuccess(false), 3000);
+    if (successTimerRef.current) {
+      clearTimeout(successTimerRef.current);
+    }
+    successTimerRef.current = setTimeout(() => setShowSuccess(false), 3000);
   }, [currentText, onEntrySaved]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>): void => {

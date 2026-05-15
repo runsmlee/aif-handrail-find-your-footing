@@ -129,7 +129,7 @@ export function MindfulnessTimer({ onComplete }: MindfulnessTimerProps) {
   const isComplete = state === 'complete';
 
   return (
-    <section className="py-16 sm:py-24 bg-white dark:bg-slate-800 animate-section-hidden" aria-labelledby="mindfulness-heading" ref={sectionRef}>
+    <section id="mindfulness" className="py-16 sm:py-24 bg-white dark:bg-slate-800 animate-section-hidden" aria-labelledby="mindfulness-heading" ref={sectionRef}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2
