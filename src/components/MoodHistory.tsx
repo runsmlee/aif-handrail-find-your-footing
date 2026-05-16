@@ -1,5 +1,6 @@
 import { type MoodEntry } from '../hooks/useMoodHistory';
 import { useCallback } from 'react';
+import { formatRelativeTime } from '../utils/formatRelativeTime';
 
 interface MoodHistoryProps {
   history: MoodEntry[];
@@ -13,24 +14,6 @@ const MOOD_SCORES: Record<string, number> = {
   low: 2,
   struggling: 1,
 };
-
-function formatRelativeTime(timestamp: number): string {
-  const now = Date.now();
-  const diffMs = now - timestamp;
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMin < 1) return 'Just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return new Date(timestamp).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  });
-}
 
 function getMoodTrendLabel(history: MoodEntry[]): string | null {
   if (history.length < 2) return null;

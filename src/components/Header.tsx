@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface HeaderProps {
   activeSection?: string;
@@ -16,6 +16,21 @@ const NAV_ITEMS = [
 
 export function Header({ activeSection = '', theme = 'light', onToggleTheme }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    function handleClickOutside(e: MouseEvent): void {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [mobileMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700" role="banner">
@@ -137,6 +152,7 @@ export function Header({ activeSection = '', theme = 'light', onToggleTheme }: H
         {mobileMenuOpen && (
           <nav
             id="mobile-menu"
+            ref={menuRef}
             className="md:hidden pb-4 border-t border-slate-100 dark:border-slate-700 animate-fade-in"
             aria-label="Mobile navigation"
           >

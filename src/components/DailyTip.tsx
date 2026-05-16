@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 interface Tip {
   text: string;
@@ -35,9 +35,9 @@ export function DailyTip() {
 
   const tip = useMemo(() => TIPS[tipIndex], [tipIndex]);
 
-  const handleNewTip = (): void => {
+  const handleNewTip = useCallback((): void => {
     setTipIndex((prev) => (prev + 1) % TIPS.length);
-  };
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
