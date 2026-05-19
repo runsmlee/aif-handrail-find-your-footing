@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Header } from '../components/Header';
 
+// Mock analytics
+vi.mock('../utils/analytics', () => ({
+  trackEvent: vi.fn(),
+}));
+
+import { trackEvent } from '../utils/analytics';
+
 describe('Header', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -84,7 +91,9 @@ describe('Header', () => {
 
   it('logo link has accessible label', () => {
     render(<Header />);
-    expect(screen.getByLabelText('Handrail home')).toBeInTheDocument();
+    const logoLink = screen.getByLabelText('Handrail home');
+    expect(logoLink).toBeInTheDocument();
+    expect(logoLink).toHaveAttribute('href', '/');
   });
 
   it('desktop navigation has accessible label', () => {
@@ -99,5 +108,19 @@ describe('Header', () => {
     for (const link of crisisLinks) {
       expect(link.closest('a')).toHaveAttribute('href', '#crisis');
     }
+  });
+
+  it('tracks analytics when theme is toggled', () => {
+    const onToggleTheme = vi.fn();
+    render(<Header theme="light" onToggleTheme={onToggleTheme} />);
+    fireEvent.click(screen.getByLabelText('Switch to dark mode'));
+    expect(trackEvent).toHaveBeenCalledWith('theme_toggled', { theme: 'dark' });
+  });
+
+  it('tracks analytics when logo is clicked', () => {
+    render(<Header />);
+    const logoLink = screen.getByLabelText('Handrail home');
+    fireEvent.click(logoLink);
+    expect(trackEvent).toHaveBeenCalledWith('nav_clicked', { target: 'logo' });
   });
 });

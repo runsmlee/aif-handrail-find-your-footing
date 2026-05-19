@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 type GroundingPhase = 'intro' | 'see' | 'touch' | 'hear' | 'smell' | 'taste' | 'complete';
 
@@ -30,6 +31,7 @@ export function GroundingExercise() {
     setPhase('see');
     setCurrentStepIndex(0);
     setItems([]);
+    trackEvent('grounding_started');
   }, []);
 
   const handleNext = useCallback(() => {
@@ -40,6 +42,7 @@ export function GroundingExercise() {
       setItems([]);
     } else {
       setPhase('complete');
+      trackEvent('grounding_completed');
     }
   }, [currentStepIndex]);
 
@@ -105,13 +108,21 @@ export function GroundingExercise() {
           {currentStep && (phase === currentStep.key) && (
             <div className="animate-fade-in" role="form" aria-label={currentStep.title}>
               {/* Progress */}
-              <div className="flex items-center gap-2 mb-6" aria-hidden="true">
+              <div
+                className="flex items-center gap-2 mb-6"
+                role="progressbar"
+                aria-valuenow={currentStepIndex + 1}
+                aria-valuemin={1}
+                aria-valuemax={STEPS.length}
+                aria-label={`Step ${currentStepIndex + 1} of ${STEPS.length}: ${currentStep.title}`}
+              >
                 {STEPS.map((step, i) => (
                   <div
                     key={step.key}
                     className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
                       i <= currentStepIndex ? 'bg-primary-400 dark:bg-primary-500' : 'bg-slate-200 dark:bg-slate-600'
                     }`}
+                    aria-hidden="true"
                   />
                 ))}
               </div>

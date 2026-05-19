@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { useMindfulnessSessions } from '../hooks/useMindfulnessSessions';
+import { trackEvent } from '../utils/analytics';
 
 type TimerState = 'idle' | 'running' | 'paused' | 'complete';
 
@@ -39,6 +41,7 @@ export function MindfulnessTimer({ onComplete }: MindfulnessTimerProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasCompletedRef = useRef(false);
+  const { addSession } = useMindfulnessSessions();
 
   const clearTimer = useCallback(() => {
     if (intervalRef.current) {
@@ -61,6 +64,8 @@ export function MindfulnessTimer({ onComplete }: MindfulnessTimerProps) {
             setState('complete');
             if (!hasCompletedRef.current) {
               hasCompletedRef.current = true;
+              addSession(selectedSeconds);
+              trackEvent('mindfulness_completed', { duration_seconds: selectedSeconds });
               onComplete?.();
             }
             return 0;
@@ -91,6 +96,7 @@ export function MindfulnessTimer({ onComplete }: MindfulnessTimerProps) {
     setMessageIndex(0);
     hasCompletedRef.current = false;
     setState('running');
+    trackEvent('mindfulness_started', { duration_seconds: selectedSeconds });
   }, [selectedSeconds]);
 
   const handlePause = useCallback(() => {

@@ -1,6 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GroundingExercise } from '../components/GroundingExercise';
+
+// Mock analytics
+vi.mock('../utils/analytics', () => ({
+  trackEvent: vi.fn(),
+}));
+
+import { trackEvent } from '../utils/analytics';
 
 describe('GroundingExercise', () => {
   it('renders the heading', () => {
@@ -116,5 +123,31 @@ describe('GroundingExercise', () => {
     // Progress bars are rendered (aria-hidden)
     const form = screen.getByRole('form');
     expect(form).toBeInTheDocument();
+  });
+
+  it('has accessible progressbar with ARIA attributes', () => {
+    render(<GroundingExercise />);
+    fireEvent.click(screen.getByText("Let's Begin"));
+    const progressbar = screen.getByRole('progressbar');
+    expect(progressbar).toHaveAttribute('aria-valuenow', '1');
+    expect(progressbar).toHaveAttribute('aria-valuemin', '1');
+    expect(progressbar).toHaveAttribute('aria-valuemax', '5');
+    expect(progressbar).toHaveAttribute('aria-label', 'Step 1 of 5: 5 Things You Can See');
+  });
+
+  it('tracks analytics when exercise starts', () => {
+    render(<GroundingExercise />);
+    fireEvent.click(screen.getByText("Let's Begin"));
+    expect(trackEvent).toHaveBeenCalledWith('grounding_started');
+  });
+
+  it('tracks analytics when exercise completes', () => {
+    render(<GroundingExercise />);
+    fireEvent.click(screen.getByText("Let's Begin"));
+    for (let i = 0; i < 5; i++) {
+      const buttonText = i < 4 ? 'Next Step' : 'Finish';
+      fireEvent.click(screen.getByText(buttonText));
+    }
+    expect(trackEvent).toHaveBeenCalledWith('grounding_completed');
   });
 });

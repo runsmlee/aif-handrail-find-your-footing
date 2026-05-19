@@ -12,13 +12,18 @@ describe('Hero', () => {
 
   it('renders the description text', () => {
     render(<Hero />);
-    expect(screen.getByText(/A gentle space to check in with yourself/)).toBeInTheDocument();
+    expect(screen.getByText(/Choose an exercise below to center yourself right now/)).toBeInTheDocument();
   });
 
-  it('renders the CTA buttons', () => {
+  it('renders the interactive grounding module', () => {
     render(<Hero />);
-    expect(screen.getByText('Start Checking In')).toBeInTheDocument();
-    expect(screen.getByText('Try Breathing Exercise')).toBeInTheDocument();
+    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
+    expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
+  });
+
+  it('renders the Quick Grounding heading', () => {
+    render(<Hero />);
+    expect(screen.getByText('Quick Grounding')).toBeInTheDocument();
   });
 
   it('renders trust indicators', () => {
@@ -71,7 +76,6 @@ describe('Hero', () => {
 
   it('renders fire emoji for streaks >= 7', () => {
     render(<Hero streak={8} />);
-    // The streak indicator should contain the fire emoji
     const streakEl = screen.getByText('8 days streak');
     expect(streakEl).toBeInTheDocument();
   });

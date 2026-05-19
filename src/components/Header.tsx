@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 interface HeaderProps {
   activeSection?: string;
@@ -17,6 +18,17 @@ const NAV_ITEMS = [
 export function Header({ activeSection = '', theme = 'light', onToggleTheme }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleLogoClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    trackEvent('nav_clicked', { target: 'logo' });
+  }, []);
+
+  const handleThemeToggle = useCallback(() => {
+    onToggleTheme?.();
+    trackEvent('theme_toggled', { theme: theme === 'dark' ? 'light' : 'dark' });
+  }, [onToggleTheme, theme]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -37,7 +49,7 @@ export function Header({ activeSection = '', theme = 'light', onToggleTheme }: H
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 text-slate-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors" aria-label="Handrail home">
+          <a href="/" className="flex items-center gap-2 text-slate-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors" aria-label="Handrail home" onClick={handleLogoClick}>
             <svg
               width="28"
               height="28"
@@ -99,7 +111,7 @@ export function Header({ activeSection = '', theme = 'light', onToggleTheme }: H
             {/* Dark mode toggle */}
             <button
               type="button"
-              onClick={onToggleTheme}
+              onClick={handleThemeToggle}
               className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
@@ -175,9 +187,7 @@ export function Header({ activeSection = '', theme = 'light', onToggleTheme }: H
               <div className="flex items-center gap-2 mt-2 px-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    onToggleTheme?.();
-                  }}
+                  onClick={handleThemeToggle}
                   className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 >

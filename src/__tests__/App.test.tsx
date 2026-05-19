@@ -45,9 +45,9 @@ describe('App', () => {
     expect(skipLink).toBeInTheDocument();
   });
 
-  it('renders the main hero section', () => {
+  it('renders the main hero section with interactive module', () => {
     render(<App />);
-    expect(screen.getByText(/A gentle space to check in with yourself/)).toBeInTheDocument();
+    expect(screen.getByText('Quick Grounding')).toBeInTheDocument();
   });
 
   it('renders the header with navigation', () => {

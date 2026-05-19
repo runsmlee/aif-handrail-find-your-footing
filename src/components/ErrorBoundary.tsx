@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    trackEvent('error_boundary_triggered', { error: error.message });
     return { hasError: true, error };
   }
 

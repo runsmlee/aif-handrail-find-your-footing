@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { formatRelativeTime } from '../utils/formatRelativeTime';
+import { trackEvent } from '../utils/analytics';
 
 interface GratitudeEntry {
   text: string;
@@ -88,6 +89,7 @@ export function GratitudeJournal({ onEntrySaved }: GratitudeJournalProps) {
     setCurrentText('');
     setShowSuccess(true);
     onEntrySaved?.();
+    trackEvent('gratitude_entry_saved');
     if (successTimerRef.current) {
       clearTimeout(successTimerRef.current);
     }

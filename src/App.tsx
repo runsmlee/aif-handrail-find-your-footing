@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { DailyProgress } from './components/DailyProgress';
@@ -8,6 +8,7 @@ import { useScrollSpy } from './hooks/useScrollSpy';
 import { useTheme } from './hooks/useTheme';
 import { useMoodHistory } from './hooks/useMoodHistory';
 import { useDailyProgress } from './hooks/useDailyProgress';
+import { trackEvent } from './utils/analytics';
 
 // Lazy load heavy sections to reduce initial bundle
 const DailySummary = lazy(() =>
@@ -80,6 +81,11 @@ export function App() {
   const { history, addEntry, clearHistory, streak } = useMoodHistory();
   const { activity, markMoodCheckedIn, updateChecklistProgress, markBreathingDone, markGratitudeDone, markMindfulnessDone } = useDailyProgress();
 
+  // Track page view on mount
+  useEffect(() => {
+    trackEvent('page_view', { path: window.location.pathname });
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <a
@@ -101,7 +107,7 @@ export function App() {
       </ErrorBoundary>
       <main id="main-content" className="flex-1">
         <ErrorBoundary>
-          <Hero streak={streak} />
+          <Hero streak={streak} onBreathingComplete={markBreathingDone} />
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>

@@ -37,9 +37,14 @@ const ACTIONS: QuickAction[] = [
   },
 ];
 
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 export const QuickActions = memo(function QuickActions() {
+  const handleActionClick = useCallback((href: string) => {
+    trackEvent('quick_action_clicked', { target: href });
+  }, []);
+
   return (
     <section className="py-10 sm:py-14 bg-slate-50 dark:bg-slate-900" aria-labelledby="quick-actions-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,6 +55,7 @@ export const QuickActions = memo(function QuickActions() {
               key={action.href}
               href={action.href}
               className={`group flex flex-col items-center gap-2 p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200 hover:scale-[1.03] hover:shadow-md active:scale-[0.98] min-h-[100px] justify-center ${action.color}`}
+              onClick={() => handleActionClick(action.href)}
             >
               <span className="text-2xl sm:text-3xl" aria-hidden="true">{action.emoji}</span>
               <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 text-center leading-tight">

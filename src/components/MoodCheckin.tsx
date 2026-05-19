@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { MoodHistory } from './MoodHistory';
 import { useMoodHistory, type MoodEntry } from '../hooks/useMoodHistory';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { trackEvent } from '../utils/analytics';
 
 interface MoodOption {
   value: string;
@@ -44,6 +45,7 @@ export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sha
     addEntry({ value: mood.value, label: mood.label, emoji: mood.emoji });
     onMoodSelect?.(mood);
     onMoodCheckedIn?.();
+    trackEvent('mood_checkin', { mood: mood.value });
   }, [onMoodSelect, onMoodCheckedIn, addEntry]);
 
   const handleRadioKeyDown = useCallback((e: React.KeyboardEvent) => {

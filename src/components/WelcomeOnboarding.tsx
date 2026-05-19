@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 const STORAGE_KEY = 'handrail-onboarding-complete';
 const ONBOARDING_STEPS = [
@@ -68,7 +69,8 @@ export function WelcomeOnboarding() {
     } catch {
       // ignore
     }
-  }, []);
+    trackEvent('onboarding_completed', { step });
+  }, [step]);
 
   const handleNext = useCallback((): void => {
     if (step < ONBOARDING_STEPS.length - 1) {

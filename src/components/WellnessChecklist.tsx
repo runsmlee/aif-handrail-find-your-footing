@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { trackEvent } from '../utils/analytics';
 
 interface ChecklistItem {
   id: string;
@@ -66,6 +67,7 @@ export function WellnessChecklist({ onProgressChange }: WellnessChecklistProps) 
         : [...prev, id];
       saveCheckedItems(next);
       onProgressChange?.(next.length, CHECKLIST_ITEMS.length);
+      trackEvent('checklist_item_toggled', { id, checked: !prev.includes(id) });
       return next;
     });
   }, [onProgressChange]);

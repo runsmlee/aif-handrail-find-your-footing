@@ -2,6 +2,22 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MindfulnessTimer } from '../components/MindfulnessTimer';
 
+// Mock analytics
+vi.mock('../utils/analytics', () => ({
+  trackEvent: vi.fn(),
+}));
+
+// Mock useMindfulnessSessions
+vi.mock('../hooks/useMindfulnessSessions', () => ({
+  useMindfulnessSessions: () => ({
+    sessions: [],
+    sessionsThisWeek: 0,
+    addSession: vi.fn(),
+  }),
+}));
+
+import { trackEvent } from '../utils/analytics';
+
 // Mock IntersectionObserver
 class MockIntersectionObserver {
   observe = vi.fn();
@@ -113,5 +129,21 @@ describe('MindfulnessTimer', () => {
       vi.advanceTimersByTime(301000);
     });
     expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it('tracks analytics when timer starts', () => {
+    render(<MindfulnessTimer />);
+    fireEvent.click(screen.getByText('Begin'));
+    expect(trackEvent).toHaveBeenCalledWith('mindfulness_started', { duration_seconds: 300 });
+  });
+
+  it('tracks analytics when timer completes', () => {
+    render(<MindfulnessTimer />);
+    fireEvent.click(screen.getByLabelText('1 min: Quick pause'));
+    fireEvent.click(screen.getByText('Begin'));
+    act(() => {
+      vi.advanceTimersByTime(61000);
+    });
+    expect(trackEvent).toHaveBeenCalledWith('mindfulness_completed', { duration_seconds: 60 });
   });
 });

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useBreathingSessions } from '../hooks/useBreathingSessions';
+import { trackEvent } from '../utils/analytics';
 
 type Phase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'done';
 type Duration = 'quick' | 'standard' | 'extended';
@@ -70,7 +71,8 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
     setPhase('inhale');
     setCycleCount(1);
     setSecondsLeft(PHASES.inhale.duration);
-  }, []);
+    trackEvent('breathing_started', { duration: selectedDuration });
+  }, [selectedDuration]);
 
   // Track total seconds for this session
   const totalSessionSeconds = useMemo((): number => {
@@ -89,6 +91,7 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
           if (!hasCompletedRef.current) {
             hasCompletedRef.current = true;
             addSession('Box Breathing', totalSessionSeconds);
+            trackEvent('breathing_completed', { cycles: totalCycles, duration_seconds: totalSessionSeconds });
             onComplete?.();
           }
           return;

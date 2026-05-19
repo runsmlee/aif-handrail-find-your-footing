@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
+import { HeroGroundingModule } from './HeroGroundingModule';
 
 interface HeroProps {
   streak?: number;
+  onBreathingComplete?: () => void;
 }
 
 function getTimeGreeting(): string {
@@ -64,7 +66,7 @@ function getStreakMilestone(streak: number): { label: string; next: number } | n
   return null;
 }
 
-export function Hero({ streak = 0 }: HeroProps) {
+export function Hero({ streak = 0, onBreathingComplete }: HeroProps) {
   const greeting = useMemo(() => getTimeGreeting(), []);
   const quote = useMemo(() => getDailyQuote(), []);
   const affirmation = useMemo(() => getDailyAffirmation(), []);
@@ -93,122 +95,115 @@ export function Hero({ streak = 0 }: HeroProps) {
         </svg>
       </div>
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
-        <div className="max-w-2xl">
-          {/* Greeting */}
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">
-            {greeting}
-          </p>
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left column: Identity */}
+          <div>
+            {/* Greeting */}
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">
+              {greeting}
+            </p>
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-900/40 rounded-full border border-primary-200/60 dark:border-primary-800/40">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse-gentle" aria-hidden="true" />
-            Your daily wellness companion
-          </div>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-900/40 rounded-full border border-primary-200/60 dark:border-primary-800/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse-gentle" aria-hidden="true" />
+              Your daily wellness companion
+            </div>
 
-          {/* Streak indicator with milestone progress */}
-          {streak > 0 && milestone && (
-            <div className="inline-flex flex-col items-start gap-1.5 mb-4 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/30 rounded-full">
-                <span aria-hidden="true">
-                  {streak >= 7 ? '\u{1F525}' : '\u{2B50}'}
-                </span>
-                {streak} day{streak !== 1 ? 's' : ''} streak
-              </div>
-              {milestone.next > streak && (
-                <div className="ml-2 flex items-center gap-2">
-                  <div className="w-20 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-sage-500 dark:bg-sage-400 rounded-full transition-all duration-500"
-                      style={{ width: `${((streak % milestone.next) / milestone.next) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
-                    {milestone.next - streak} to {milestone.label}
+            {/* Streak indicator with milestone progress */}
+            {streak > 0 && milestone && (
+              <div className="inline-flex flex-col items-start gap-1.5 mb-4 animate-fade-in">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/30 rounded-full">
+                  <span aria-hidden="true">
+                    {streak >= 7 ? '\u{1F525}' : '\u{2B50}'}
                   </span>
+                  {streak} day{streak !== 1 ? 's' : ''} streak
                 </div>
-              )}
+                {milestone.next > streak && (
+                  <div className="ml-2 flex items-center gap-2">
+                    <div className="w-20 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-sage-500 dark:bg-sage-400 rounded-full transition-all duration-500"
+                        style={{ width: `${((streak % milestone.next) / milestone.next) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                      {milestone.next - streak} to {milestone.label}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {streak === 0 && milestone && (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full animate-fade-in">
+                <span aria-hidden="true">{'\u{1F331}'}</span>
+                {milestone.label}
+              </div>
+            )}
+
+            <h1
+              id="hero-heading"
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1]"
+            >
+              Find Your{' '}
+              <span className="text-primary-500 dark:text-primary-400">Footing</span>
+            </h1>
+
+            <p className="mt-4 sm:mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+              A gentle space to check in with yourself. Choose an exercise below to center yourself right now.
+            </p>
+
+            {/* Daily affirmation */}
+            <div className="mt-6 sm:mt-8 p-4 bg-primary-50/60 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800/40 rounded-xl max-w-lg">
+              <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-1.5">
+                Today&apos;s Affirmation
+              </p>
+              <p className="text-sm text-primary-800 dark:text-primary-200 font-medium leading-relaxed">
+                {affirmation}
+              </p>
             </div>
-          )}
+          </div>
 
-          {streak === 0 && milestone && (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full animate-fade-in">
-              <span aria-hidden="true">{'\u{1F331}'}</span>
-              {milestone.label}
-            </div>
-          )}
+          {/* Right column: Interactive grounding module */}
+          <div className="bg-white/80 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse-gentle" aria-hidden="true" />
+              Quick Grounding
+            </h2>
+            <HeroGroundingModule onBreathingComplete={onBreathingComplete} />
+          </div>
+        </div>
 
-          <h1
-            id="hero-heading"
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1]"
-          >
-            Find Your{' '}
-            <span className="text-primary-500 dark:text-primary-400">Footing</span>
-          </h1>
-
-          <p className="mt-4 sm:mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-            A gentle space to check in with yourself. Track your mood, practice
-            breathing, and find grounding when things feel unsteady.
+        {/* Daily quote */}
+        <div className="mt-10 sm:mt-14 p-4 bg-white/60 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 rounded-xl max-w-lg">
+          <p className="text-sm text-slate-600 dark:text-slate-400 italic leading-relaxed">
+            &ldquo;{quote.text}&rdquo;
           </p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+            &mdash; {quote.author}
+          </p>
+        </div>
 
-          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <a
-              href="#mood"
-              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 active:scale-[0.98] transition-all shadow-sm shadow-primary-500/25 min-h-[44px]"
-            >
-              Start Checking In
-              <svg className="ml-2 w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </a>
-            <a
-              href="#breathe"
-              className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 active:scale-[0.98] transition-all min-h-[44px]"
-            >
-              Try Breathing Exercise
-            </a>
+        {/* Trust indicators */}
+        <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+            Free &amp; private
           </div>
-
-          {/* Daily affirmation */}
-          <div className="mt-6 sm:mt-8 p-4 bg-primary-50/60 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800/40 rounded-xl max-w-lg">
-            <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-1.5">
-              Today&apos;s Affirmation
-            </p>
-            <p className="text-sm text-primary-800 dark:text-primary-200 font-medium leading-relaxed">
-              {affirmation}
-            </p>
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+            Evidence-based techniques
           </div>
-
-          {/* Daily quote */}
-          <div className="mt-10 sm:mt-14 p-4 bg-white/60 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 rounded-xl max-w-lg">
-            <p className="text-sm text-slate-600 dark:text-slate-400 italic leading-relaxed">
-              &ldquo;{quote.text}&rdquo;
-            </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
-              &mdash; {quote.author}
-            </p>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-6 text-sm text-slate-500 dark:text-slate-400">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
-              Free &amp; private
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
-              Evidence-based techniques
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
-              No account required
-            </div>
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-sage-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+            No account required
           </div>
         </div>
       </div>
