@@ -1,0 +1,1 @@
+var e={excellent:5,great:5,good:4,okay:3,low:2,struggling:1,difficult:1};function t(t){return e[t]??3}var n={excellent:`Excellent`,great:`Great`,good:`Good`,okay:`Okay`,low:`Low`,struggling:`Struggling`,difficult:`Difficult`};export{t as n,n as t};

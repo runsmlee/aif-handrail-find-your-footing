@@ -1,25 +1,18 @@
 import { type MoodEntry } from '../hooks/useMoodHistory';
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { formatRelativeTime } from '../utils/formatRelativeTime';
+import { getMoodScore } from '../utils/moodScores';
 
 interface MoodHistoryProps {
   history: MoodEntry[];
   onClear: () => void;
 }
 
-const MOOD_SCORES: Record<string, number> = {
-  great: 5,
-  good: 4,
-  okay: 3,
-  low: 2,
-  struggling: 1,
-};
-
 function getMoodTrendLabel(history: MoodEntry[]): string | null {
   if (history.length < 2) return null;
 
   const recent = history.slice(0, Math.min(3, history.length));
-  const avg = recent.reduce((sum, e) => sum + (MOOD_SCORES[e.value] ?? 3), 0) / recent.length;
+  const avg = recent.reduce((sum, e) => sum + getMoodScore(e.value), 0) / recent.length;
 
   if (avg >= 4) return 'trending positive';
   if (avg <= 2) return 'reaching out for support';
@@ -47,9 +40,23 @@ function exportMoodHistory(history: MoodEntry[]): void {
 }
 
 export function MoodHistory({ history, onClear }: MoodHistoryProps) {
+  const [confirmClear, setConfirmClear] = useState(false);
   const handleExport = useCallback(() => {
     exportMoodHistory(history);
   }, [history]);
+
+  const handleClearClick = useCallback((): void => {
+    setConfirmClear(true);
+  }, []);
+
+  const handleConfirmClear = useCallback((): void => {
+    setConfirmClear(false);
+    onClear();
+  }, [onClear]);
+
+  const handleCancelClear = useCallback((): void => {
+    setConfirmClear(false);
+  }, []);
   if (history.length === 0) {
     return (
       <div className="text-center py-8 px-4">
@@ -106,7 +113,7 @@ export function MoodHistory({ history, onClear }: MoodHistoryProps) {
                 <path
                   d={(() => {
                     const points = vizEntries.map((entry, i) => {
-                      const score = MOOD_SCORES[entry.value] ?? 3;
+                      const score = getMoodScore(entry.value);
                       const x = vizEntries.length > 1 ? (i / (vizEntries.length - 1)) * 200 : 100;
                       const y = 45 - ((score - 1) / 4) * 36;
                       return { x, y };
@@ -132,7 +139,7 @@ export function MoodHistory({ history, onClear }: MoodHistoryProps) {
                 <path
                   d={(() => {
                     const points = vizEntries.map((entry, i) => {
-                      const score = MOOD_SCORES[entry.value] ?? 3;
+                      const score = getMoodScore(entry.value);
                       const x = vizEntries.length > 1 ? (i / (vizEntries.length - 1)) * 200 : 100;
                       const y = 45 - ((score - 1) / 4) * 36;
                       return { x, y };
@@ -154,7 +161,7 @@ export function MoodHistory({ history, onClear }: MoodHistoryProps) {
 
               {/* Data points */}
               {vizEntries.map((entry, i) => {
-                const score = MOOD_SCORES[entry.value] ?? 3;
+                const score = getMoodScore(entry.value);
                 const x = vizEntries.length > 1 ? (i / (vizEntries.length - 1)) * 200 : 100;
                 const y = 45 - ((score - 1) / 4) * 36;
                 return (
@@ -228,13 +235,33 @@ export function MoodHistory({ history, onClear }: MoodHistoryProps) {
           >
             Export CSV
           </button>
-          <button
-            type="button"
-            className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-            onClick={onClear}
-          >
-            Clear history
-          </button>
+          {!confirmClear ? (
+            <button
+              type="button"
+              className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              onClick={handleClearClick}
+            >
+              Clear history
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 animate-fade-in" role="alert">
+              <span className="text-xs text-slate-500 dark:text-slate-400">Are you sure?</span>
+              <button
+                type="button"
+                className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                onClick={handleConfirmClear}
+              >
+                Yes, clear
+              </button>
+              <button
+                type="button"
+                className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                onClick={handleCancelClear}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

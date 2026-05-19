@@ -114,6 +114,7 @@ export function App() {
             checklistProgress={activity.checklistProgress}
             checklistTotal={activity.checklistTotal}
             breathingDone={activity.breathingDone}
+            mindfulnessDone={activity.mindfulnessDone}
             gratitudeDone={activity.gratitudeDone}
           />
         </ErrorBoundary>

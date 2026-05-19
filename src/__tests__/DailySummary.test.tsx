@@ -1,35 +1,3 @@
-import '@testing-library/jest-dom/vitest';
-
-// Mock window.matchMedia for tests
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: (query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  }),
-});
-
-// Mock IntersectionObserver
-class MockIntersectionObserver {
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
-}
-window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-
-// Mock URL.createObjectURL and revokeObjectURL
-vi.stubGlobal('URL', {
-  ...URL,
-  createObjectURL: (_blob?: Blob | MediaSource) => 'blob:mock-url',
-  revokeObjectURL: (_url?: string) => {},
-});
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MoodInsights } from '../components/MoodInsights';

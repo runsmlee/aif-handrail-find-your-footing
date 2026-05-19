@@ -1,33 +1,10 @@
 import { useMemo } from 'react';
 import { type MoodEntry } from '../hooks/useMoodHistory';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { getMoodScore, MOOD_LABELS } from '../utils/moodScores';
 
 interface MoodInsightsProps {
   history: MoodEntry[];
-}
-
-const MOOD_SCORES: Record<string, number> = {
-  excellent: 5,
-  great: 5,
-  good: 4,
-  okay: 3,
-  low: 2,
-  struggling: 1,
-  difficult: 1,
-};
-
-const MOOD_LABELS: Record<string, string> = {
-  excellent: 'Excellent',
-  great: 'Great',
-  good: 'Good',
-  okay: 'Okay',
-  low: 'Low',
-  struggling: 'Struggling',
-  difficult: 'Difficult',
-};
-
-function getMoodScore(value: string): number {
-  return MOOD_SCORES[value] ?? 3;
 }
 
 interface Insight {
