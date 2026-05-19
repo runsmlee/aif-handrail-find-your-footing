@@ -24,49 +24,36 @@ describe('HeroGroundingModule', () => {
     vi.clearAllMocks();
   });
 
-  it('renders exercise selection cards', () => {
+  it('defaults to 5-4-3-2-1 Grounding exercise (primary action)', () => {
     render(<HeroGroundingModule />);
-    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
-    expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
-  });
-
-  it('renders Box Breathing card title', () => {
-    render(<HeroGroundingModule />);
-    expect(screen.getByText('Box Breathing')).toBeInTheDocument();
-  });
-
-  it('renders 5-4-3-2-1 Grounding card title', () => {
-    render(<HeroGroundingModule />);
-    expect(screen.getByText('5-4-3-2-1 Grounding')).toBeInTheDocument();
-  });
-
-  it('shows Box Breathing exercise when selected', () => {
-    render(<HeroGroundingModule />);
-    fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
-    expect(screen.getByText('Ready?')).toBeInTheDocument();
-    expect(screen.getByText('Begin')).toBeInTheDocument();
-  });
-
-  it('shows 5-4-3-2-1 Grounding intro when selected', () => {
-    render(<HeroGroundingModule />);
-    fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
     expect(screen.getByText(/Use your senses to anchor yourself/)).toBeInTheDocument();
     expect(screen.getByText("Let's Begin")).toBeInTheDocument();
   });
 
-  it('can go back to exercise selection from Box Breathing', () => {
+  it('shows 5-4-3-2-1 Grounding region by default', () => {
     render(<HeroGroundingModule />);
-    fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
-    fireEvent.click(screen.getByLabelText('Back to exercise selection'));
-    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
-    expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '5-4-3-2-1 Grounding exercise' })).toBeInTheDocument();
   });
 
-  it('can go back to exercise selection from Grounding', () => {
+  it('shows switch to Box Breathing link on grounding intro', () => {
     render(<HeroGroundingModule />);
-    fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
-    fireEvent.click(screen.getByLabelText('Back to exercise selection'));
-    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
+    expect(screen.getByLabelText('Switch to Box Breathing exercise')).toBeInTheDocument();
+  });
+
+  it('switches to Box Breathing when link is clicked', () => {
+    render(<HeroGroundingModule />);
+    fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
+    expect(screen.getByRole('region', { name: 'Box Breathing exercise' })).toBeInTheDocument();
+    expect(screen.getByText('Ready?')).toBeInTheDocument();
+    expect(screen.getByText('Begin')).toBeInTheDocument();
+  });
+
+  it('switches back to Grounding from Box Breathing', () => {
+    render(<HeroGroundingModule />);
+    fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
+    fireEvent.click(screen.getByLabelText('Switch to 5-4-3-2-1 Grounding'));
+    expect(screen.getByRole('region', { name: '5-4-3-2-1 Grounding exercise' })).toBeInTheDocument();
+    expect(screen.getByText("Let's Begin")).toBeInTheDocument();
   });
 
   describe('Box Breathing', () => {
@@ -80,21 +67,21 @@ describe('HeroGroundingModule', () => {
 
     it('starts breathing when Begin is clicked', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       expect(screen.getByText('Breathe In')).toBeInTheDocument();
     });
 
     it('shows Stop button during exercise', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       expect(screen.getByText('Stop')).toBeInTheDocument();
     });
 
     it('stops exercise when Stop is clicked', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       fireEvent.click(screen.getByText('Stop'));
       expect(screen.getByText('Ready?')).toBeInTheDocument();
@@ -102,7 +89,7 @@ describe('HeroGroundingModule', () => {
 
     it('completes after 2 cycles (24 seconds)', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       // 2 cycles * (4 inhale + 4 hold + 4 exhale) = 24 seconds
       for (let i = 0; i < 24; i++) {
@@ -114,7 +101,7 @@ describe('HeroGroundingModule', () => {
     it('calls onBreathingComplete when exercise completes', () => {
       const onComplete = vi.fn();
       render(<HeroGroundingModule onBreathingComplete={onComplete} />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       for (let i = 0; i < 24; i++) {
         act(() => { vi.advanceTimersByTime(1000); });
@@ -125,7 +112,7 @@ describe('HeroGroundingModule', () => {
     it('does not call onBreathingComplete twice on re-render', () => {
       const onComplete = vi.fn();
       render(<HeroGroundingModule onBreathingComplete={onComplete} />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       for (let i = 0; i < 24; i++) {
         act(() => { vi.advanceTimersByTime(1000); });
@@ -137,7 +124,7 @@ describe('HeroGroundingModule', () => {
 
     it('shows Start Again after completion', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       for (let i = 0; i < 24; i++) {
         act(() => { vi.advanceTimersByTime(1000); });
@@ -147,7 +134,7 @@ describe('HeroGroundingModule', () => {
 
     it('can restart after completion', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       for (let i = 0; i < 24; i++) {
         act(() => { vi.advanceTimersByTime(1000); });
@@ -158,7 +145,7 @@ describe('HeroGroundingModule', () => {
 
     it('persists breathing session via addSession on completion', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       for (let i = 0; i < 24; i++) {
         act(() => { vi.advanceTimersByTime(1000); });
@@ -168,7 +155,7 @@ describe('HeroGroundingModule', () => {
 
     it('tracks analytics when breathing completes', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start Box Breathing exercise'));
+      fireEvent.click(screen.getByLabelText('Switch to Box Breathing exercise'));
       fireEvent.click(screen.getByText('Begin'));
       for (let i = 0; i < 24; i++) {
         act(() => { vi.advanceTimersByTime(1000); });
@@ -180,14 +167,12 @@ describe('HeroGroundingModule', () => {
   describe('5-4-3-2-1 Grounding', () => {
     it('starts grounding when Let\'s Begin is clicked', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       expect(screen.getByText(/5 Things You Can See/)).toBeInTheDocument();
     });
 
     it('shows step progress indicator', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       // Step 0 should be active with progress bars
       const region = screen.getByRole('region', { name: '5-4-3-2-1 Grounding exercise' });
@@ -196,14 +181,12 @@ describe('HeroGroundingModule', () => {
 
     it('shows the correct step prompt', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       expect(screen.getByText(/Look around\. Name 5 things you can see/)).toBeInTheDocument();
     });
 
     it('advances through all steps to completion', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       // Step 0: See
       expect(screen.getByText('5 Things You Can See')).toBeInTheDocument();
@@ -226,7 +209,6 @@ describe('HeroGroundingModule', () => {
 
     it('shows try again after completion', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       for (let i = 0; i < 5; i++) {
         const btn = i < 4 ? 'Next' : 'Finish';
@@ -237,7 +219,6 @@ describe('HeroGroundingModule', () => {
 
     it('resets to intro when Try Again is clicked', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       for (let i = 0; i < 5; i++) {
         const btn = i < 4 ? 'Next' : 'Finish';
@@ -249,29 +230,25 @@ describe('HeroGroundingModule', () => {
 
     it('shows cancel button during exercise', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       expect(screen.getByText('Cancel')).toBeInTheDocument();
     });
 
-    it('returns to selection when cancel is clicked', () => {
+    it('returns to grounding intro when cancel is clicked', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       fireEvent.click(screen.getByText('Cancel'));
-      expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
+      expect(screen.getByText("Let's Begin")).toBeInTheDocument();
     });
 
     it('renders step icons in intro', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       const region = screen.getByRole('region', { name: '5-4-3-2-1 Grounding exercise' });
       expect(region).toBeInTheDocument();
     });
 
     it('tracks analytics when grounding completes', () => {
       render(<HeroGroundingModule />);
-      fireEvent.click(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise'));
       fireEvent.click(screen.getByText("Let's Begin"));
       for (let i = 0; i < 5; i++) {
         const btn = i < 4 ? 'Next' : 'Finish';

@@ -12,13 +12,12 @@ describe('Hero', () => {
 
   it('renders the description text', () => {
     render(<Hero />);
-    expect(screen.getByText(/Choose an exercise to center yourself right now/)).toBeInTheDocument();
+    expect(screen.getByText(/Use your senses to ground yourself in the present moment/)).toBeInTheDocument();
   });
 
   it('renders the interactive grounding module', () => {
     render(<Hero />);
-    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
-    expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
+    expect(screen.getByText("Let's Begin")).toBeInTheDocument();
   });
 
   it('does not render streak when streak is 0', () => {

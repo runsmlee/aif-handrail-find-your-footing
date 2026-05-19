@@ -26,7 +26,7 @@ const GROUNDING_STEPS = [
 const TOTAL_BREATH_CYCLES = 2;
 
 export function HeroGroundingModule({ onBreathingComplete }: HeroGroundingModuleProps) {
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseType | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseType>('grounding');
   const [breathPhase, setBreathPhase] = useState<BreathingPhase>('idle');
   const [breathSeconds, setBreathSeconds] = useState(0);
   const [breathCycle, setBreathCycle] = useState(0);
@@ -43,14 +43,24 @@ export function HeroGroundingModule({ onBreathingComplete }: HeroGroundingModule
     }
   }, []);
 
-  const resetToSelection = useCallback(() => {
+  const resetExercise = useCallback(() => {
     clearBreathTimer();
-    setSelectedExercise(null);
+    setSelectedExercise('grounding');
     setBreathPhase('idle');
     setBreathCycle(0);
     setBreathSeconds(0);
     breathCompletedRef.current = false;
     setGroundingStep(-1);
+  }, [clearBreathTimer]);
+
+  const switchToBoxBreathing = useCallback(() => {
+    clearBreathTimer();
+    setBreathPhase('idle');
+    setBreathCycle(0);
+    setBreathSeconds(0);
+    breathCompletedRef.current = false;
+    setGroundingStep(-1);
+    setSelectedExercise('box');
   }, [clearBreathTimer]);
 
   const startBoxBreathing = useCallback(() => {
@@ -145,51 +155,6 @@ export function HeroGroundingModule({ onBreathingComplete }: HeroGroundingModule
   })();
 
   // ========================
-  // RENDER: Exercise selection
-  // ========================
-  if (!selectedExercise) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="group" aria-label="Choose a grounding exercise">
-        <button
-          type="button"
-          onClick={() => { setSelectedExercise('box'); }}
-          className="group p-4 sm:p-5 text-left bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg hover:shadow-primary-500/10 transition-all min-h-[44px]"
-          aria-label="Start Box Breathing exercise"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center shrink-0">
-              <svg className="w-5 h-5 text-primary-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">Box Breathing</h3>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            4 seconds in, 4 hold, 4 out. Calm your nervous system.
-          </p>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => { setSelectedExercise('grounding'); }}
-          className="group p-4 sm:p-5 text-left bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg hover:shadow-primary-500/10 transition-all min-h-[44px]"
-          aria-label="Start 5-4-3-2-1 Grounding exercise"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-sage-100 dark:bg-sage-900/40 flex items-center justify-center shrink-0">
-              <span className="text-lg" aria-hidden="true">{'\u{1F33F}'}</span>
-            </div>
-            <h3 className="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">5-4-3-2-1 Grounding</h3>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Use your senses to anchor yourself in the present moment.
-          </p>
-        </button>
-      </div>
-    );
-  }
-
-  // ========================
   // RENDER: Box Breathing
   // ========================
   if (selectedExercise === 'box') {
@@ -201,14 +166,14 @@ export function HeroGroundingModule({ onBreathingComplete }: HeroGroundingModule
       <div className="animate-fade-in" role="region" aria-label="Box Breathing exercise">
         <button
           type="button"
-          onClick={resetToSelection}
+          onClick={resetExercise}
           className="mb-3 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors flex items-center gap-1 min-h-[44px]"
-          aria-label="Back to exercise selection"
+          aria-label="Switch to 5-4-3-2-1 Grounding"
         >
           <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Back
+          Back to Grounding
         </button>
 
         <div className="flex flex-col items-center">
@@ -299,111 +264,103 @@ export function HeroGroundingModule({ onBreathingComplete }: HeroGroundingModule
   }
 
   // ========================
-  // RENDER: 5-4-3-2-1 Grounding
+  // RENDER: 5-4-3-2-1 Grounding (primary action)
   // ========================
-  if (selectedExercise === 'grounding') {
-    const isIntro = groundingStep === -1;
-    const isComplete = groundingStep === 5;
-    const currentGroundingStep = groundingStep >= 0 && groundingStep <= 4 ? GROUNDING_STEPS[groundingStep] : null;
+  const isIntro = groundingStep === -1;
+  const isComplete = groundingStep === 5;
+  const currentGroundingStep = groundingStep >= 0 && groundingStep <= 4 ? GROUNDING_STEPS[groundingStep] : null;
 
-    return (
-      <div className="animate-fade-in" role="region" aria-label="5-4-3-2-1 Grounding exercise">
-        <button
-          type="button"
-          onClick={resetToSelection}
-          className="mb-3 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors flex items-center gap-1 min-h-[44px]"
-          aria-label="Back to exercise selection"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Back
-        </button>
+  return (
+    <div className="animate-fade-in" role="region" aria-label="5-4-3-2-1 Grounding exercise">
+      {isIntro && (
+        <div className="text-center animate-fade-in">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            {GROUNDING_STEPS.map((step) => (
+              <span key={step.sense} className="text-xl" aria-hidden="true">{step.icon}</span>
+            ))}
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+            Use your senses to anchor yourself in the present moment. Take your time with each step.
+          </p>
+          <button
+            type="button"
+            className="px-6 py-2.5 text-sm font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 transition-colors shadow-sm shadow-primary-500/25 min-h-[44px]"
+            onClick={startGrounding}
+          >
+            Let&apos;s Begin
+          </button>
+          <button
+            type="button"
+            className="block mx-auto mt-3 text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors min-h-[44px]"
+            onClick={switchToBoxBreathing}
+            aria-label="Switch to Box Breathing exercise"
+          >
+            Prefer breathing? Try Box Breathing
+          </button>
+        </div>
+      )}
 
-        {isIntro && (
-          <div className="text-center animate-fade-in">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              {GROUNDING_STEPS.map((step) => (
-                <span key={step.sense} className="text-xl" aria-hidden="true">{step.icon}</span>
-              ))}
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-              Use your senses to anchor yourself in the present moment. Take your time with each step.
+      {currentGroundingStep && (
+        <div className="animate-fade-in">
+          {/* Progress */}
+          <div className="flex items-center gap-1.5 mb-4" aria-hidden="true">
+            {GROUNDING_STEPS.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                  i <= groundingStep ? 'bg-primary-400 dark:bg-primary-500' : 'bg-slate-200 dark:bg-slate-600'
+                }`}
+              />
+            ))}
+          </div>
+
+          <div className="text-center mb-5">
+            <span className="text-3xl block mb-2" aria-hidden="true">{currentGroundingStep.icon}</span>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              {currentGroundingStep.count} Thing{currentGroundingStep.count !== 1 ? 's' : ''} You Can {currentGroundingStep.sense}
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{currentGroundingStep.prompt}</p>
+          </div>
+
+          <div className="flex justify-center gap-3">
+            <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors min-h-[44px]"
+              onClick={resetExercise}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="px-5 py-2 text-sm font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 transition-colors min-h-[44px]"
+              onClick={nextGroundingStep}
+            >
+              {groundingStep < 4 ? 'Next' : 'Finish'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isComplete && (
+        <div className="text-center animate-fade-in">
+          <div className="p-6 bg-sage-50 dark:bg-sage-900/20 border border-sage-200 dark:border-sage-800 rounded-2xl">
+            <span className="text-4xl block mb-2" aria-hidden="true">{'\u{1F331}'}</span>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+              You&apos;re grounded
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              You used your senses to reconnect with the present moment. Take a deep breath.
             </p>
             <button
               type="button"
-              className="px-6 py-2.5 text-sm font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 transition-colors shadow-sm shadow-primary-500/25 min-h-[44px]"
-              onClick={startGrounding}
+              className="px-5 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors min-h-[44px]"
+              onClick={resetGrounding}
             >
-              Let&apos;s Begin
+              Try Again
             </button>
           </div>
-        )}
-
-        {currentGroundingStep && (
-          <div className="animate-fade-in">
-            {/* Progress */}
-            <div className="flex items-center gap-1.5 mb-4" aria-hidden="true">
-              {GROUNDING_STEPS.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                    i <= groundingStep ? 'bg-primary-400 dark:bg-primary-500' : 'bg-slate-200 dark:bg-slate-600'
-                  }`}
-                />
-              ))}
-            </div>
-
-            <div className="text-center mb-5">
-              <span className="text-3xl block mb-2" aria-hidden="true">{currentGroundingStep.icon}</span>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                {currentGroundingStep.count} Thing{currentGroundingStep.count !== 1 ? 's' : ''} You Can {currentGroundingStep.sense}
-              </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{currentGroundingStep.prompt}</p>
-            </div>
-
-            <div className="flex justify-center gap-3">
-              <button
-                type="button"
-                className="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors min-h-[44px]"
-                onClick={resetToSelection}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="px-5 py-2 text-sm font-medium text-white bg-primary-500 dark:bg-primary-600 rounded-xl hover:bg-primary-600 dark:hover:bg-primary-700 transition-colors min-h-[44px]"
-                onClick={nextGroundingStep}
-              >
-                {groundingStep < 4 ? 'Next' : 'Finish'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {isComplete && (
-          <div className="text-center animate-fade-in">
-            <div className="p-6 bg-sage-50 dark:bg-sage-900/20 border border-sage-200 dark:border-sage-800 rounded-2xl">
-              <span className="text-4xl block mb-2" aria-hidden="true">{'\u{1F331}'}</span>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                You&apos;re grounded
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                You used your senses to reconnect with the present moment. Take a deep breath.
-              </p>
-              <button
-                type="button"
-                className="px-5 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors min-h-[44px]"
-                onClick={resetGrounding}
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return null;
+        </div>
+      )}
+    </div>
+  );
 }

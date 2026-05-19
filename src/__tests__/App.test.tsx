@@ -47,7 +47,7 @@ describe('App', () => {
 
   it('renders the main hero section with interactive grounding module', () => {
     render(<App />);
-    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
+    expect(screen.getByText("Let's Begin")).toBeInTheDocument();
   });
 
   it('renders the header with navigation', () => {
@@ -99,13 +99,13 @@ describe('App', () => {
 
   it('renders dark mode toggle', () => {
     render(<App />);
-    const themeButton = screen.getByLabelText(/Switch to/);
+    const themeButton = screen.getByLabelText(/Switch to (light|dark) mode/);
     expect(themeButton).toBeInTheDocument();
   });
 
   it('renders the interactive exercises in hero', () => {
     render(<App />);
-    expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '5-4-3-2-1 Grounding exercise' })).toBeInTheDocument();
   });
 
   it('renders the daily progress section', () => {
