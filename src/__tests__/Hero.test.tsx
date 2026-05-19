@@ -12,30 +12,13 @@ describe('Hero', () => {
 
   it('renders the description text', () => {
     render(<Hero />);
-    expect(screen.getByText(/Choose an exercise below to center yourself right now/)).toBeInTheDocument();
+    expect(screen.getByText(/Choose an exercise to center yourself right now/)).toBeInTheDocument();
   });
 
   it('renders the interactive grounding module', () => {
     render(<Hero />);
     expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
     expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
-  });
-
-  it('renders the Quick Grounding heading', () => {
-    render(<Hero />);
-    expect(screen.getByText('Quick Grounding')).toBeInTheDocument();
-  });
-
-  it('renders trust indicators', () => {
-    render(<Hero />);
-    expect(screen.getByText('Free & private')).toBeInTheDocument();
-    expect(screen.getByText('Evidence-based techniques')).toBeInTheDocument();
-    expect(screen.getByText('No account required')).toBeInTheDocument();
-  });
-
-  it('renders the badge', () => {
-    render(<Hero />);
-    expect(screen.getByText('Your daily wellness companion')).toBeInTheDocument();
   });
 
   it('does not render streak when streak is 0', () => {
@@ -66,12 +49,6 @@ describe('Hero', () => {
   it('renders milestone progress for streaks under 7', () => {
     render(<Hero streak={5} />);
     expect(screen.getByText(/to 7-day streak/)).toBeInTheDocument();
-  });
-
-  it('renders a daily quote with author attribution', () => {
-    render(<Hero />);
-    const attribution = screen.getByText(/— /);
-    expect(attribution).toBeInTheDocument();
   });
 
   it('renders fire emoji for streaks >= 7', () => {

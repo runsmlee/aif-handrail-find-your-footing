@@ -45,9 +45,9 @@ describe('App', () => {
     expect(skipLink).toBeInTheDocument();
   });
 
-  it('renders the main hero section with interactive module', () => {
+  it('renders the main hero section with interactive grounding module', () => {
     render(<App />);
-    expect(screen.getByText('Quick Grounding')).toBeInTheDocument();
+    expect(screen.getByLabelText('Start Box Breathing exercise')).toBeInTheDocument();
   });
 
   it('renders the header with navigation', () => {
@@ -103,11 +103,9 @@ describe('App', () => {
     expect(themeButton).toBeInTheDocument();
   });
 
-  it('renders the daily quote in hero', () => {
+  it('renders the interactive exercises in hero', () => {
     render(<App />);
-    // Quote attribution should be present (em dash + author)
-    const attributions = screen.getAllByText(/— /);
-    expect(attributions.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByLabelText('Start 5-4-3-2-1 Grounding exercise')).toBeInTheDocument();
   });
 
   it('renders the daily progress section', () => {
