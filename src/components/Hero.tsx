@@ -95,7 +95,7 @@ export function Hero({ streak = 0, onBreathingComplete }: HeroProps) {
         </h1>
 
         <p className="mt-3 sm:mt-4 text-center text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">
-          Use your senses to ground yourself in the present moment.
+          Free 5-4-3-2-1 grounding tool — use your senses to find calm right now.
         </p>
 
         {/* Interactive grounding module — the hero IS the product */}

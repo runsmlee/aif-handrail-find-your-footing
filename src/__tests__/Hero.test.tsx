@@ -12,7 +12,7 @@ describe('Hero', () => {
 
   it('renders the description text', () => {
     render(<Hero />);
-    expect(screen.getByText(/Use your senses to ground yourself in the present moment/)).toBeInTheDocument();
+    expect(screen.getByText(/Free 5-4-3-2-1 grounding tool/)).toBeInTheDocument();
   });
 
   it('renders the interactive grounding module', () => {

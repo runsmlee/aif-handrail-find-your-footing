@@ -5,17 +5,17 @@ const STORAGE_KEY = 'handrail-onboarding-complete';
 const ONBOARDING_STEPS = [
   {
     title: 'Welcome to Handrail',
-    description: 'A gentle companion for your daily mental wellness. Take small steps toward feeling more grounded.',
+    description: 'A free grounding tool to help you find calm when anxiety hits. Use the 5-4-3-2-1 technique to anchor yourself.',
     icon: '\u{1F91D}',
   },
   {
     title: 'Check In With Yourself',
-    description: 'Track how you feel each day. Over time, patterns emerge that help you understand yourself better.',
+    description: 'Notice how you feel each day. Over time, patterns emerge that help you understand yourself better.',
     icon: '\u{1F4CB}',
   },
   {
     title: 'Breathe & Ground',
-    description: 'Use guided breathing exercises and the 5-4-3-2-1 grounding technique to find calm in moments of stress.',
+    description: 'Use the 5-4-3-2-1 grounding technique to engage your senses and find calm in moments of stress.',
     icon: '\u{1F30A}',
   },
   {
