@@ -115,6 +115,6 @@ describe('App', () => {
 
   it('renders daily progress with initial zero state', () => {
     render(<App />);
-    expect(screen.getAllByText('0/5').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('0/4').length).toBeGreaterThanOrEqual(1);
   });
 });

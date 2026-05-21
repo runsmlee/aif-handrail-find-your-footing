@@ -4,10 +4,8 @@ export interface DailyActivity {
   moodCheckedIn: boolean;
   checklistProgress: number;
   checklistTotal: number;
-  breathingDone: boolean;
   gratitudeDone: boolean;
   mindfulnessDone: boolean;
-  breathingSessions: number;
   gratitudeEntries: number;
 }
 
@@ -22,10 +20,8 @@ function getDefaultActivity(): DailyActivity {
     moodCheckedIn: false,
     checklistProgress: 0,
     checklistTotal: 5,
-    breathingDone: false,
     gratitudeDone: false,
     mindfulnessDone: false,
-    breathingSessions: 0,
     gratitudeEntries: 0,
   };
 }
@@ -43,10 +39,8 @@ function loadActivity(): DailyActivity {
       moodCheckedIn: typeof data.moodCheckedIn === 'boolean' ? data.moodCheckedIn : false,
       checklistProgress: typeof data.checklistProgress === 'number' ? data.checklistProgress : 0,
       checklistTotal: typeof data.checklistTotal === 'number' ? data.checklistTotal : 5,
-      breathingDone: typeof data.breathingDone === 'boolean' ? data.breathingDone : false,
       gratitudeDone: typeof data.gratitudeDone === 'boolean' ? data.gratitudeDone : false,
       mindfulnessDone: typeof data.mindfulnessDone === 'boolean' ? data.mindfulnessDone : false,
-      breathingSessions: typeof data.breathingSessions === 'number' ? data.breathingSessions : 0,
       gratitudeEntries: typeof data.gratitudeEntries === 'number' ? data.gratitudeEntries : 0,
     };
   } catch {
@@ -88,18 +82,6 @@ export function useDailyProgress() {
     updateActivity({ checklistProgress: progress, checklistTotal: total });
   }, [updateActivity]);
 
-  const markBreathingDone = useCallback((): void => {
-    setActivity(prev => {
-      const next = {
-        ...prev,
-        breathingDone: true,
-        breathingSessions: prev.breathingSessions + 1,
-      };
-      saveActivity(next);
-      return next;
-    });
-  }, []);
-
   const markGratitudeDone = useCallback((): void => {
     setActivity(prev => {
       const next = {
@@ -120,7 +102,6 @@ export function useDailyProgress() {
     activity,
     markMoodCheckedIn,
     updateChecklistProgress,
-    markBreathingDone,
     markGratitudeDone,
     markMindfulnessDone,
   };

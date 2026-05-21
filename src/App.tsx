@@ -29,9 +29,6 @@ const WellnessChecklist = lazy(() =>
 const MoodInsights = lazy(() =>
   import('./components/MoodInsights').then(m => ({ default: m.MoodInsights }))
 );
-const BreathingExercise = lazy(() =>
-  import('./components/BreathingExercise').then(m => ({ default: m.BreathingExercise }))
-);
 const MindfulnessTimer = lazy(() =>
   import('./components/MindfulnessTimer').then(m => ({ default: m.MindfulnessTimer }))
 );
@@ -73,13 +70,13 @@ function SectionLoader(): React.ReactElement {
   return <SkeletonPulse />;
 }
 
-const SECTION_IDS = ['mood', 'breathe', 'mindfulness', 'grounding', 'gratitude', 'crisis'];
+const SECTION_IDS = ['mood', 'mindfulness', 'grounding', 'gratitude', 'crisis'];
 
 export function App() {
   const activeSection = useScrollSpy({ sectionIds: SECTION_IDS, offset: 120 });
   const { theme, toggleTheme } = useTheme();
   const { history, addEntry, clearHistory, streak } = useMoodHistory();
-  const { activity, markMoodCheckedIn, updateChecklistProgress, markBreathingDone, markGratitudeDone, markMindfulnessDone } = useDailyProgress();
+  const { activity, markMoodCheckedIn, updateChecklistProgress, markGratitudeDone, markMindfulnessDone } = useDailyProgress();
 
   // Track page view on mount
   useEffect(() => {
@@ -107,7 +104,7 @@ export function App() {
       </ErrorBoundary>
       <main id="main-content" className="flex-1">
         <ErrorBoundary>
-          <Hero streak={streak} onBreathingComplete={markBreathingDone} />
+          <Hero streak={streak} />
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
@@ -119,7 +116,6 @@ export function App() {
             moodCheckedIn={activity.moodCheckedIn}
             checklistProgress={activity.checklistProgress}
             checklistTotal={activity.checklistTotal}
-            breathingDone={activity.breathingDone}
             mindfulnessDone={activity.mindfulnessDone}
             gratitudeDone={activity.gratitudeDone}
           />
@@ -152,11 +148,6 @@ export function App() {
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
             <WellnessChecklist onProgressChange={updateChecklistProgress} />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<SectionLoader />}>
-            <BreathingExercise onComplete={markBreathingDone} />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>

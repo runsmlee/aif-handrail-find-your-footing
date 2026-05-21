@@ -15,13 +15,6 @@ const ACTIONS: QuickAction[] = [
     color: 'bg-primary-50 dark:bg-primary-900/20 border-primary-100 dark:border-primary-800',
   },
   {
-    label: 'Breathe',
-    description: '4-4-4 box breathing',
-    href: '#breathe',
-    emoji: '\u{1F30A}',
-    color: 'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800',
-  },
-  {
     label: 'Ground Yourself',
     description: '5-4-3-2-1 sensory',
     href: '#grounding',

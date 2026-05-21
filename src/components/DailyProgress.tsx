@@ -11,7 +11,6 @@ interface DailyProgressProps {
   moodCheckedIn: boolean;
   checklistProgress: number;
   checklistTotal: number;
-  breathingDone: boolean;
   gratitudeDone: boolean;
   mindfulnessDone: boolean;
 }
@@ -20,17 +19,15 @@ export function DailyProgress({
   moodCheckedIn,
   checklistProgress,
   checklistTotal,
-  breathingDone,
   gratitudeDone,
   mindfulnessDone,
 }: DailyProgressProps) {
   const items: ProgressItem[] = useMemo(() => [
     { id: 'mood', label: 'Check In', completed: moodCheckedIn, icon: '\u{1F4CB}' },
     { id: 'checklist', label: `Tasks ${checklistProgress}/${checklistTotal}`, completed: checklistProgress === checklistTotal && checklistTotal > 0, icon: '\u{2705}' },
-    { id: 'breathe', label: 'Breathe', completed: breathingDone, icon: '\u{1F30A}' },
     { id: 'mindfulness', label: 'Meditate', completed: mindfulnessDone, icon: '\u{1F9D8}' },
     { id: 'gratitude', label: 'Gratitude', completed: gratitudeDone, icon: '\u{1F64F}' },
-  ], [moodCheckedIn, checklistProgress, checklistTotal, breathingDone, mindfulnessDone, gratitudeDone]);
+  ], [moodCheckedIn, checklistProgress, checklistTotal, mindfulnessDone, gratitudeDone]);
 
   const completedCount = items.filter(i => i.completed).length;
   const totalItems = items.length;
@@ -42,7 +39,6 @@ export function DailyProgress({
     if (isAllComplete) return 'Amazing! You completed all activities today.';
     if (completedCount === 0) return 'Start your wellness journey for today.';
     if (completedCount === 1) return 'Great start! Keep going.';
-    if (completedCount === 2) return 'You\'re halfway there!';
     return 'Almost done! Just a bit more.';
   }, [completedCount, isAllComplete]);
 

@@ -12,7 +12,7 @@ describe('Hero', () => {
 
   it('renders the description text', () => {
     render(<Hero />);
-    expect(screen.getByText(/Free 5-4-3-2-1 grounding tool/)).toBeInTheDocument();
+    expect(screen.getByText(/Free grounding tool/)).toBeInTheDocument();
   });
 
   it('renders the interactive grounding module', () => {

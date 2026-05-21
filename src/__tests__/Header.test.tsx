@@ -27,7 +27,6 @@ describe('Header', () => {
   it('renders desktop navigation items', () => {
     render(<Header />);
     expect(screen.getByText('Check In')).toBeInTheDocument();
-    expect(screen.getByText('Breathe')).toBeInTheDocument();
     expect(screen.getByText('Meditate')).toBeInTheDocument();
     expect(screen.getByText('Ground Yourself')).toBeInTheDocument();
     expect(screen.getByText('Support')).toBeInTheDocument();
@@ -60,7 +59,7 @@ describe('Header', () => {
 
   it('does not highlight inactive sections', () => {
     render(<Header activeSection="mood" />);
-    const inactiveLink = screen.getByText('Breathe');
+    const inactiveLink = screen.getByText('Meditate');
     expect(inactiveLink).not.toHaveAttribute('aria-current');
   });
 

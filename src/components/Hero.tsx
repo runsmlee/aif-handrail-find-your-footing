@@ -3,7 +3,6 @@ import { HeroGroundingModule } from './HeroGroundingModule';
 
 interface HeroProps {
   streak?: number;
-  onBreathingComplete?: () => void;
 }
 
 function getTimeGreeting(): string {
@@ -24,7 +23,7 @@ function getStreakMilestone(streak: number): { label: string; next: number } | n
   return null;
 }
 
-export function Hero({ streak = 0, onBreathingComplete }: HeroProps) {
+export function Hero({ streak = 0 }: HeroProps) {
   const greeting = useMemo(() => getTimeGreeting(), []);
   const milestone = useMemo(() => getStreakMilestone(streak), [streak]);
 
@@ -95,12 +94,12 @@ export function Hero({ streak = 0, onBreathingComplete }: HeroProps) {
         </h1>
 
         <p className="mt-3 sm:mt-4 text-center text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">
-          Free 5-4-3-2-1 grounding tool — use your senses to find calm right now.
+          Free grounding tool — use your five senses to anchor yourself right now.
         </p>
 
         {/* Interactive grounding module — the hero IS the product */}
         <div className="mt-8 sm:mt-10 bg-white/80 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50">
-          <HeroGroundingModule onBreathingComplete={onBreathingComplete} />
+          <HeroGroundingModule />
         </div>
       </div>
     </section>
