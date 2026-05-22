@@ -35,8 +35,7 @@ describe('App', () => {
 
   it('renders the app title', () => {
     render(<App />);
-    expect(screen.getByText('Find Your')).toBeInTheDocument();
-    expect(screen.getByText('Footing')).toBeInTheDocument();
+    expect(screen.getByText('Grounding Tool')).toBeInTheDocument();
   });
 
   it('renders the skip to main content link', () => {

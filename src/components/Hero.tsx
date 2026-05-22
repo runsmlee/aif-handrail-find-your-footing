@@ -89,8 +89,7 @@ export function Hero({ streak = 0 }: HeroProps) {
           id="hero-heading"
           className="text-center text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1]"
         >
-          Find Your{' '}
-          <span className="text-primary-500 dark:text-primary-400">Footing</span>
+          <span className="text-primary-500 dark:text-primary-400">Grounding Tool</span>
         </h1>
 
         <p className="mt-3 sm:mt-4 text-center text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">

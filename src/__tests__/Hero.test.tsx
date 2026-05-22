@@ -7,7 +7,7 @@ describe('Hero', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Find Your Footing');
+    expect(heading).toHaveTextContent('Grounding Tool');
   });
 
   it('renders the description text', () => {
