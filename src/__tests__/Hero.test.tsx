@@ -3,11 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { Hero } from '../components/Hero';
 
 describe('Hero', () => {
-  it('renders the main heading', () => {
+  it('renders the main heading with product name', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Grounding Tool');
+    expect(heading).toHaveTextContent('Handrail');
   });
 
   it('renders the description text', () => {
