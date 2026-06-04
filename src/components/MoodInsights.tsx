@@ -178,7 +178,8 @@ function computeBestDayOfWeek(history: MoodEntry[]): {
     const avg = data.total / data.count;
     if (avg > bestAvg) {
       bestAvg = avg;
-      bestDay = dayNames[dow as unknown as number];
+      const dayIndex = Number(dow);
+      bestDay = dayNames[dayIndex] ?? null;
     }
   }
 

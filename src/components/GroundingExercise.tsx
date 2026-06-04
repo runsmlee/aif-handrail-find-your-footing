@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { trackEvent } from '../utils/analytics';
 
 type GroundingPhase = 'intro' | 'see' | 'touch' | 'hear' | 'smell' | 'taste' | 'complete';
@@ -24,6 +24,8 @@ export function GroundingExercise() {
   const [phase, setPhase] = useState<GroundingPhase>('intro');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [items, setItems] = useState<string[]>([]);
+  const [itemKeys, setItemKeys] = useState<number[]>([]);
+  const keyCounter = useRef(0);
 
   const currentStep = STEPS[currentStepIndex];
 
@@ -31,6 +33,8 @@ export function GroundingExercise() {
     setPhase('see');
     setCurrentStepIndex(0);
     setItems([]);
+    setItemKeys([]);
+    keyCounter.current = 0;
     trackEvent('grounding_started');
   }, []);
 
@@ -40,6 +44,7 @@ export function GroundingExercise() {
       setPhase(STEPS[nextIndex].key);
       setCurrentStepIndex(nextIndex);
       setItems([]);
+      setItemKeys([]);
     } else {
       setPhase('complete');
       trackEvent('grounding_completed');
@@ -48,7 +53,9 @@ export function GroundingExercise() {
 
   const handleAddItem = useCallback(() => {
     if (items.length < (currentStep?.count ?? 0)) {
+      keyCounter.current += 1;
       setItems(prev => [...prev, '']);
+      setItemKeys(prev => [...prev, keyCounter.current]);
     }
   }, [items.length, currentStep]);
 
@@ -64,6 +71,7 @@ export function GroundingExercise() {
     setPhase('intro');
     setCurrentStepIndex(0);
     setItems([]);
+    setItemKeys([]);
   }, []);
 
   return (
@@ -136,12 +144,12 @@ export function GroundingExercise() {
               {/* Input items */}
               <div className="space-y-3 mb-6">
                 {items.map((item, i) => (
-                  <div key={i}>
-                    <label htmlFor={`grounding-item-${i}`} className="sr-only">
+                  <div key={itemKeys[i] ?? i}>
+                    <label htmlFor={`grounding-item-${itemKeys[i] ?? i}`} className="sr-only">
                       {currentStep.prompt} item {i + 1}
                     </label>
                     <input
-                      id={`grounding-item-${i}`}
+                      id={`grounding-item-${itemKeys[i] ?? i}`}
                       type="text"
                       className="w-full px-4 py-3 text-sm border border-slate-200 dark:border-slate-600 rounded-xl focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30 transition-colors bg-slate-50 dark:bg-slate-700 focus:bg-white dark:focus:bg-slate-700 text-slate-800 dark:text-slate-200"
                       placeholder={`${currentStep.prompt} (${i + 1} of ${currentStep.count})`}
