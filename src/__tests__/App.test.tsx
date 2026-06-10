@@ -35,7 +35,7 @@ describe('App', () => {
 
   it('renders the app title', () => {
     render(<App />);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Handrail');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Grounding Tool');
   });
 
   it('renders the skip to main content link', () => {
