@@ -42,7 +42,7 @@ export const QuickActions = memo(function QuickActions() {
     <section className="py-10 sm:py-14 bg-slate-50 dark:bg-slate-900" aria-labelledby="quick-actions-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 id="quick-actions-heading" className="sr-only">Quick Actions</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {ACTIONS.map((action) => (
             <a
               key={action.href}

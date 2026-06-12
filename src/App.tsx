@@ -38,6 +38,9 @@ const GroundingExercise = lazy(() =>
 const GratitudeJournal = lazy(() =>
   import('./components/GratitudeJournal').then(m => ({ default: m.GratitudeJournal }))
 );
+const BreathingExercise = lazy(() =>
+  import('./components/BreathingExercise').then(m => ({ default: m.BreathingExercise }))
+);
 const CrisisResources = lazy(() =>
   import('./components/CrisisResources').then(m => ({ default: m.CrisisResources }))
 );
@@ -158,6 +161,11 @@ export function App() {
         <ErrorBoundary>
           <Suspense fallback={<SectionLoader />}>
             <GroundingExercise />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Suspense fallback={<SectionLoader />}>
+            <BreathingExercise />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
