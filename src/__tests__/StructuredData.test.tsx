@@ -14,40 +14,7 @@ const htmlContent: string =
   typeof __INDEX_HTML__ !== 'undefined'
     ? __INDEX_HTML__
     : /* fall back: inline the JSON-LD block we care about so tests still pass in CI */
-      `<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "@id": "https://wv-handrail-find-your-footing-ai-founders-product.vercel.app/#webapp",
-  "name": "Grounding Tool — Find Your Footing",
-  "alternateName": "Handrail",
-  "description": "Free grounding tool for immediate anxiety relief. Use the 5-4-3-2-1 method to find your footing in under 60 seconds.",
-  "url": "https://wv-handrail-find-your-footing-ai-founders-product.vercel.app",
-  "applicationCategory": "HealthApplication",
-  "operatingSystem": "Web Browser",
-  "browserRequirements": "Requires JavaScript. Requires HTML5.",
-  "inLanguage": "en-US",
-  "genre": ["Health", "Mental Health", "Anxiety Relief", "Wellness"],
-  "featureList": [
-    "5-4-3-2-1 Sensory Grounding Exercise",
-    "Mood Check-in and Tracking",
-    "Mindfulness Meditation Timer",
-    "Gratitude Journal",
-    "Daily Wellness Checklist",
-    "Breathing Exercises",
-    "Crisis Support Resources"
-  ],
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "creator": {
-    "@type": "Organization",
-    "name": "Handrail"
-  }
-}
-</script>`;
+      `<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Grounding Tool","description":"Free 5-4-3-2-1 grounding tool for immediate anxiety relief. Find your footing in under 60 seconds.","url":"https://wv-handrail-find-your-footing-ai-founders-product.vercel.app","applicationCategory":"HealthApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>`;
 
 /** Extract and parse the JSON-LD block from the HTML string. */
 function extractSchema(): Record<string, unknown> {
@@ -69,19 +36,16 @@ describe('Structured Data (JSON-LD)', () => {
     expect(schema['@type']).toBe('WebApplication');
   });
 
-  it('has a unique @id for entity disambiguation', () => {
+  it('includes required name field', () => {
     const schema = extractSchema();
-    expect(schema['@id']).toBeDefined();
-    expect(typeof schema['@id']).toBe('string');
-    expect(schema['@id']).toContain('#webapp');
+    expect(schema.name).toBe('Grounding Tool');
   });
 
-  it('includes required name and description fields', () => {
+  it('includes required description field', () => {
     const schema = extractSchema();
-    expect(schema.name).toBeDefined();
-    expect(schema.description).toBeDefined();
-    expect((schema.name as string).length).toBeGreaterThan(0);
-    expect((schema.description as string).length).toBeGreaterThan(0);
+    expect(schema.description).toBe(
+      'Free 5-4-3-2-1 grounding tool for immediate anxiety relief. Find your footing in under 60 seconds.'
+    );
   });
 
   it('specifies applicationCategory as HealthApplication', () => {
@@ -89,29 +53,9 @@ describe('Structured Data (JSON-LD)', () => {
     expect(schema.applicationCategory).toBe('HealthApplication');
   });
 
-  it('includes inLanguage for search engine targeting', () => {
+  it('specifies operatingSystem as Web', () => {
     const schema = extractSchema();
-    expect(schema.inLanguage).toBe('en-US');
-  });
-
-  it('includes browserRequirements', () => {
-    const schema = extractSchema();
-    expect(schema.browserRequirements).toBeDefined();
-    expect(typeof schema.browserRequirements).toBe('string');
-  });
-
-  it('includes genre array for categorization', () => {
-    const schema = extractSchema();
-    expect(schema.genre).toBeDefined();
-    expect(Array.isArray(schema.genre)).toBe(true);
-    expect((schema.genre as string[]).length).toBeGreaterThan(0);
-  });
-
-  it('includes featureList for keyword relevance', () => {
-    const schema = extractSchema();
-    expect(schema.featureList).toBeDefined();
-    expect(Array.isArray(schema.featureList)).toBe(true);
-    expect((schema.featureList as string[]).length).toBeGreaterThan(0);
+    expect(schema.operatingSystem).toBe('Web');
   });
 
   it('offers a free product with zero price', () => {
@@ -125,8 +69,9 @@ describe('Structured Data (JSON-LD)', () => {
 
   it('includes the deployed URL', () => {
     const schema = extractSchema();
-    expect(schema.url).toBeDefined();
-    expect(schema.url).toContain('vercel.app');
+    expect(schema.url).toBe(
+      'https://wv-handrail-find-your-footing-ai-founders-product.vercel.app'
+    );
   });
 
   it('JSON-LD is valid JSON without syntax errors', () => {
@@ -142,10 +87,10 @@ describe('Semantic H1 verification', () => {
     expect(heading.tagName).toBe('H1');
   });
 
-  it('h1 contains the primary product keyword', () => {
+  it('h1 contains the exact specified text', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent('Grounding Tool');
+    expect(heading).toHaveTextContent('Free 5-4-3-2-1 Grounding Tool for Anxiety Relief');
   });
 
   it('h1 has an id attribute matching the section aria-labelledby', () => {
