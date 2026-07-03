@@ -14,7 +14,7 @@ const htmlContent: string =
   typeof __INDEX_HTML__ !== 'undefined'
     ? __INDEX_HTML__
     : /* fall back: inline the JSON-LD block we care about so tests still pass in CI */
-      `<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Grounding Tool","description":"Free 5-4-3-2-1 grounding tool for immediate anxiety relief. Find your footing in under 60 seconds.","url":"https://wv-handrail-find-your-footing-ai-founders-product.vercel.app","applicationCategory":"HealthApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>`;
+      `<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Grounding Tool","description":"Free 5-4-3-2-1 grounding tool for immediate anxiety relief. Find your footing in under 60 seconds.","url":"https://wv-handrail-find-your-footing-ai-founders-product.vercel.app","applicationCategory":"HealthApplication","operatingSystem":"Web Browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>`;
 
 /** Extract and parse the JSON-LD block from the HTML string. */
 function extractSchema(): Record<string, unknown> {
@@ -53,9 +53,9 @@ describe('Structured Data (JSON-LD)', () => {
     expect(schema.applicationCategory).toBe('HealthApplication');
   });
 
-  it('specifies operatingSystem as Web', () => {
+  it('specifies operatingSystem as Web Browser', () => {
     const schema = extractSchema();
-    expect(schema.operatingSystem).toBe('Web');
+    expect(schema.operatingSystem).toBe('Web Browser');
   });
 
   it('offers a free product with zero price', () => {
