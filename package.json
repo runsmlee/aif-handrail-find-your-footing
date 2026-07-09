@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && NODE_ENV=development vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "NODE_ENV=development vitest run",
     "test:watch": "vitest"

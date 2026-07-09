@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { MoodHistory } from './MoodHistory';
 import { useMoodHistory, type MoodEntry } from '../hooks/useMoodHistory';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
@@ -31,6 +31,8 @@ interface MoodCheckinProps {
 export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sharedHistory, sharedClearHistory }: MoodCheckinProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const moodButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
   const localMoodHistory = useMoodHistory();
   const sectionRef = useScrollAnimation();
 
@@ -65,10 +67,8 @@ export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sha
     const nextMood = MOOD_OPTIONS[nextIndex];
     if (nextMood) {
       handleSelect(nextMood);
-      // Move focus to the newly selected button
-      const buttons = (e.currentTarget as HTMLElement).querySelectorAll('[role="radio"]');
-      const btn = buttons[nextIndex] as HTMLElement | undefined;
-      btn?.focus();
+      // Move focus using ref instead of fragile DOM query
+      moodButtonRefs.current[nextIndex]?.focus();
     }
   }, [selectedMood, handleSelect]);
 
@@ -98,9 +98,10 @@ export function MoodCheckin({ onMoodSelect, onMoodCheckedIn, sharedAddEntry, sha
                   aria-labelledby="mood-heading"
                   onKeyDown={handleRadioKeyDown}
                 >
-                  {MOOD_OPTIONS.map((mood) => (
+                  {MOOD_OPTIONS.map((mood, idx) => (
                     <button
                       key={mood.value}
+                      ref={(el) => { moodButtonRefs.current[idx] = el; }}
                       type="button"
                       role="radio"
                       aria-checked={selectedMood === mood.value}

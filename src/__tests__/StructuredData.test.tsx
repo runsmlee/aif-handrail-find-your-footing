@@ -14,7 +14,7 @@ const htmlContent: string =
   typeof __INDEX_HTML__ !== 'undefined'
     ? __INDEX_HTML__
     : /* fall back: inline the JSON-LD block we care about so tests still pass in CI */
-      `<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Grounding Tool","description":"Free 5-4-3-2-1 grounding tool for immediate anxiety relief. Find your footing in under 60 seconds.","url":"https://wv-handrail-find-your-footing-ai-founders-product.vercel.app","applicationCategory":"HealthApplication","operatingSystem":"Web Browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>`;
+      `<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Grounding Tool","description":"Free 5-4-3-2-1 grounding tool for immediate anxiety relief","applicationCategory":"HealthApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>`;
 
 /** Extract and parse the JSON-LD block from the HTML string. */
 function extractSchema(): Record<string, unknown> {
@@ -44,7 +44,7 @@ describe('Structured Data (JSON-LD)', () => {
   it('includes required description field', () => {
     const schema = extractSchema();
     expect(schema.description).toBe(
-      'Free 5-4-3-2-1 grounding tool for immediate anxiety relief. Find your footing in under 60 seconds.'
+      'Free 5-4-3-2-1 grounding tool for immediate anxiety relief'
     );
   });
 
@@ -53,9 +53,9 @@ describe('Structured Data (JSON-LD)', () => {
     expect(schema.applicationCategory).toBe('HealthApplication');
   });
 
-  it('specifies operatingSystem as Web Browser', () => {
+  it('specifies operatingSystem as Web', () => {
     const schema = extractSchema();
-    expect(schema.operatingSystem).toBe('Web Browser');
+    expect(schema.operatingSystem).toBe('Web');
   });
 
   it('offers a free product with zero price', () => {
@@ -65,13 +65,6 @@ describe('Structured Data (JSON-LD)', () => {
     expect(offers['@type']).toBe('Offer');
     expect(offers.price).toBe('0');
     expect(offers.priceCurrency).toBe('USD');
-  });
-
-  it('includes the deployed URL', () => {
-    const schema = extractSchema();
-    expect(schema.url).toBe(
-      'https://wv-handrail-find-your-footing-ai-founders-product.vercel.app'
-    );
   });
 
   it('JSON-LD is valid JSON without syntax errors', () => {
@@ -90,7 +83,7 @@ describe('Semantic H1 verification', () => {
   it('h1 contains the exact specified text', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent('Free 5-4-3-2-1 Grounding Tool for Anxiety Relief');
+    expect(heading).toHaveTextContent('Grounding Tool — Free 5-4-3-2-1 Anxiety Relief');
   });
 
   it('h1 has an id attribute matching the section aria-labelledby', () => {

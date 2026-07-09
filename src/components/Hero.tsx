@@ -89,7 +89,7 @@ export function Hero({ streak = 0 }: HeroProps) {
           id="hero-heading"
           className="text-center text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1]"
         >
-          Free 5-4-3-2-1 Grounding Tool for Anxiety Relief
+          Grounding Tool — Free 5-4-3-2-1 Anxiety Relief
         </h1>
 
         <p className="mt-3 sm:mt-4 text-center text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">

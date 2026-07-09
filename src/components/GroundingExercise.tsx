@@ -1,5 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { trackEvent } from '../utils/analytics';
+
+const STORAGE_KEY = 'handrail-grounding-state';
 
 type GroundingPhase = 'intro' | 'see' | 'touch' | 'hear' | 'smell' | 'taste' | 'complete';
 
@@ -20,6 +22,11 @@ const STEPS: StepConfig[] = [
   { key: 'taste', title: '1 Thing You Can Taste', description: 'Focus on one taste in your mouth right now.', prompt: 'What do you taste?', count: 1, icon: '\u{1F351}' },
 ];
 
+interface GroundingPersistState {
+  phase: GroundingPhase;
+  currentStepIndex: number;
+}
+
 export function GroundingExercise() {
   const [phase, setPhase] = useState<GroundingPhase>('intro');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -28,6 +35,37 @@ export function GroundingExercise() {
   const keyCounter = useRef(0);
 
   const currentStep = STEPS[currentStepIndex];
+
+  // Restore in-progress exercise from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: GroundingPersistState = JSON.parse(saved);
+        if (parsed.phase && parsed.phase !== 'intro' && parsed.phase !== 'complete') {
+          setPhase(parsed.phase);
+          setCurrentStepIndex(parsed.currentStepIndex ?? 0);
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
+
+  // Persist exercise progress when in an active step
+  useEffect(() => {
+    try {
+      if (phase !== 'intro' && phase !== 'complete') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ phase, currentStepIndex }));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, [phase, currentStepIndex]);
 
   const handleStart = useCallback(() => {
     setPhase('see');
@@ -47,6 +85,11 @@ export function GroundingExercise() {
       setItemKeys([]);
     } else {
       setPhase('complete');
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // ignore
+      }
       trackEvent('grounding_completed');
     }
   }, [currentStepIndex]);
@@ -72,6 +115,11 @@ export function GroundingExercise() {
     setCurrentStepIndex(0);
     setItems([]);
     setItemKeys([]);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
   }, []);
 
   return (

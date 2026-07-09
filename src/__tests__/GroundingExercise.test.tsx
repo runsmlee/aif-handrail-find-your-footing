@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GroundingExercise } from '../components/GroundingExercise';
 
@@ -10,6 +10,11 @@ vi.mock('../utils/analytics', () => ({
 import { trackEvent } from '../utils/analytics';
 
 describe('GroundingExercise', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
+
   it('renders the heading', () => {
     render(<GroundingExercise />);
     expect(screen.getByText('5-4-3-2-1 Grounding')).toBeInTheDocument();

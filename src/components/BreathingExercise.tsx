@@ -47,9 +47,29 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
   const [selectedDuration, setSelectedDuration] = useState<Duration>('standard');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasCompletedRef = useRef(false);
+
+  // Refs to track current state inside interval without re-creating it
+  const phaseRef = useRef<Phase>('idle');
+  const secondsLeftRef = useRef(0);
+  const cycleCountRef = useRef(0);
+  const totalCyclesRef = useRef(0);
+
   const { sessionsThisWeek, addSession } = useBreathingSessions();
 
   const totalCycles = DURATIONS[selectedDuration].cycles;
+
+  // Track total seconds for this session
+  const totalSessionSeconds = useMemo((): number => {
+    const cycles = DURATIONS[selectedDuration].cycles;
+    // Each cycle = inhale + hold + exhale = 4 + 4 + 4 = 12 seconds
+    return cycles * 12;
+  }, [selectedDuration]);
+
+  // Keep refs in sync with state
+  phaseRef.current = phase;
+  secondsLeftRef.current = secondsLeft;
+  cycleCountRef.current = cycleCount;
+  totalCyclesRef.current = totalCycles;
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -74,24 +94,31 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
     trackEvent('breathing_started', { duration: selectedDuration });
   }, [selectedDuration]);
 
-  // Track total seconds for this session
-  const totalSessionSeconds = useMemo((): number => {
-    const cycles = DURATIONS[selectedDuration].cycles;
-    // Each cycle = inhale + hold + exhale = 4 + 4 + 4 = 12 seconds
-    return cycles * 12;
-  }, [selectedDuration]);
-
+  // Single persistent interval that manages all phase transitions
   useEffect(() => {
-    if (phase === 'idle' || phase === 'done') return;
+    if (phase === 'idle' || phase === 'done') {
+      clearTimer();
+      return;
+    }
 
-    if (secondsLeft <= 0) {
-      if (phase === 'exhale') {
-        if (cycleCount >= totalCycles) {
+    timerRef.current = setInterval(() => {
+      const currentSeconds = secondsLeftRef.current - 1;
+      const currentPhase = phaseRef.current;
+
+      if (currentSeconds > 0) {
+        setSecondsLeft(currentSeconds);
+        return;
+      }
+
+      // Phase transition needed
+      if (currentPhase === 'exhale') {
+        if (cycleCountRef.current >= totalCyclesRef.current) {
           setPhase('done');
+          clearTimer();
           if (!hasCompletedRef.current) {
             hasCompletedRef.current = true;
             addSession('Box Breathing', totalSessionSeconds);
-            trackEvent('breathing_completed', { cycles: totalCycles, duration_seconds: totalSessionSeconds });
+            trackEvent('breathing_completed', { cycles: totalCyclesRef.current, duration_seconds: totalSessionSeconds });
             onComplete?.();
           }
           return;
@@ -99,22 +126,17 @@ export function BreathingExercise({ onComplete }: BreathingExerciseProps) {
         setPhase('inhale');
         setCycleCount(c => c + 1);
         setSecondsLeft(PHASES.inhale.duration);
-      } else if (phase === 'inhale') {
+      } else if (currentPhase === 'inhale') {
         setPhase('hold');
         setSecondsLeft(PHASES.hold.duration);
-      } else if (phase === 'hold') {
+      } else if (currentPhase === 'hold') {
         setPhase('exhale');
         setSecondsLeft(PHASES.exhale.duration);
       }
-      return;
-    }
-
-    timerRef.current = setInterval(() => {
-      setSecondsLeft(s => s - 1);
     }, 1000);
 
     return clearTimer;
-  }, [phase, secondsLeft, cycleCount, totalCycles, clearTimer, onComplete]);
+  }, [phase, clearTimer, onComplete, addSession, totalSessionSeconds, totalCycles]);
 
   const currentPhaseConfig = phase !== 'idle' && phase !== 'done' ? PHASES[phase] : null;
   const currentColor = phase !== 'idle' && phase !== 'done' ? PHASE_COLORS[phase] : '#cbd5e1';
