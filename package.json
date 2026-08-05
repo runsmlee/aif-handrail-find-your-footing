@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "NODE_ENV=production tsc --noEmit && NODE_ENV=production vite build",
+    "build": "NODE_ENV=production tsc --noEmit && NODE_ENV=production vite build --mode production",
     "preview": "vite preview",
     "test": "NODE_ENV=development vitest run",
     "test:watch": "vitest"
